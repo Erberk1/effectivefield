@@ -1,0 +1,44 @@
+{{- define "main" }}
+<div class="simulations-page">
+  <h1 class="page-heading">Simulations</h1>
+  <p class="simulations-intro">Interactive physics visualisations — open in full screen for the best experience.</p>
+
+  <div class="sim-grid">
+
+    <a class="sim-card" href="/desitter.html" target="_blank">
+      <div class="sim-preview sim-desitter">
+        <div class="sim-preview-inner">
+          <svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="bg" cx="50%" cy="50%" r="60%">
+                <stop offset="0%" stop-color="#1a1a4e"/>
+                <stop offset="100%" stop-color="#060612"/>
+              </radialGradient>
+            </defs>
+            <rect width="200" height="140" fill="url(#bg)"/>
+            <!-- Hyperboloid rings -->
+            <ellipse cx="100" cy="70" rx="70" ry="18" fill="none" stroke="#4466cc" stroke-width="0.8" opacity="0.6"/>
+            <ellipse cx="100" cy="70" rx="50" ry="12" fill="none" stroke="#6688ee" stroke-width="0.8" opacity="0.5"/>
+            <ellipse cx="100" cy="70" rx="30" ry="7" fill="none" stroke="#88aaff" stroke-width="0.8" opacity="0.4"/>
+            <!-- Vertical lines -->
+            <line x1="100" y1="10" x2="100" y2="130" stroke="#88aaff" stroke-width="0.5" opacity="0.3"/>
+            <line x1="70" y1="15" x2="130" y2="125" stroke="#6688ee" stroke-width="0.5" opacity="0.3"/>
+            <line x1="130" y1="15" x2="70" y2="125" stroke="#6688ee" stroke-width="0.5" opacity="0.3"/>
+            <!-- Glow dot -->
+            <circle cx="100" cy="70" r="4" fill="#aabbff" opacity="0.9"/>
+            <circle cx="100" cy="70" r="10" fill="none" stroke="#aabbff" stroke-width="0.5" opacity="0.4"/>
+          </svg>
+        </div>
+      </div>
+      <div class="sim-info">
+        <span class="sim-title">de Sitter Space</span>
+        <span class="sim-desc">Interactive 5D embedding — explore the geometry of de Sitter spacetime with real-time controls</span>
+        <span class="sim-tag">General Relativity · Cosmology</span>
+      </div>
+    </a>
+
+  </div>
+
+  <p class="simulations-more">More simulations coming soon.</p>
+</div>
+{{- end }}

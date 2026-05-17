@@ -352,6 +352,107 @@ body {
   color: #1a1a1a;
 }
 
+/* ── Simulations page ──────────────────────────────────── */
+.simulations-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.simulations-page .page-heading {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.simulations-intro {
+  color: #777;
+  font-size: 0.95rem;
+  margin-bottom: 40px;
+}
+
+.sim-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 28px;
+}
+
+.sim-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e4e4e4;
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+  background: #fff;
+}
+
+.sim-card:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  border-color: #bbb;
+  transform: translateY(-3px);
+  text-decoration: none;
+}
+
+.sim-preview {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #060612;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.sim-preview-inner {
+  width: 100%;
+  height: 100%;
+}
+
+.sim-preview svg {
+  width: 100%;
+  height: 100%;
+}
+
+.sim-info {
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sim-title {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.sim-desc {
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.sim-tag {
+  font-size: 0.75rem;
+  color: #999;
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+}
+
+.simulations-more {
+  margin-top: 48px;
+  color: #bbb;
+  font-size: 0.85rem;
+  text-align: center;
+  font-style: italic;
+}
+
 /* ── Dark mode (minimal override) ─────────────────────── */
 .dark body {
   background-color: #0f0f0f;

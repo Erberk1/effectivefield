@@ -63,9 +63,9 @@ locale = "en-us"
     url = "/contact/"
     weight = 4
   [[menu.main]]
-    identifier = "desitter"
-    name = "de Sitter ✦"
-    url = "/desitter.html"
+    identifier = "simulations"
+    name = "Simulations"
+    url = "/simulations/"
     weight = 5
 
 [markup]
