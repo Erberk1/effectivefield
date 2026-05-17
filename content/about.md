@@ -5,9 +5,7 @@ url: "/about/"
 summary: "About Eren Erberk Erkul"
 ---
 
-## About Me
-
-I'm **Eren Erberk Erkul**, a dual-major student in Electrical & Electronics Engineering and Physics at **Middle East Technical University (METU · ODTÜ)** in Ankara, Turkey.
+I'm **Eren Erberk Erkul** — a physicist and engineer interested in general relativity, electromagnetic media, and the geometric foundations of physical theories.
 
 This blog — **Effective Field** — is where I write about physics, technology, and ideas. The name is a nod to *effective field theory*: the physics framework for describing systems at a given scale without needing to know every detail of the underlying structure.
 
@@ -15,15 +13,7 @@ The posts range from physics lectures and conference talks to thought experiment
 
 ---
 
-## Affiliations
-
-- Electrical Electronics Engineering Department, METU
-- Physics Department, METU · ODTÜ — Ankara, Turkey
-
----
-
 ## Find Me
 
 - [LinkedIn](https://www.linkedin.com/in/erenerberkerkul)
 - [YouTube](https://www.youtube.com/@erenerberkerkul)
-- [Instagram](https://www.instagram.com/erenerberkerkul)

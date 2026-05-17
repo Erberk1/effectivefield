@@ -18,6 +18,13 @@ locale = "en-us"
   ShowToc = true
   TocOpen = false
   math = true
+  hideSummary = false
+  disableSpecial1stPost = true
+
+  [params.cover]
+    hidden = true
+    hiddenInList = true
+    hiddenInSingle = false
 
   [params.label]
     text = "Effective Field"
@@ -26,7 +33,7 @@ locale = "en-us"
 
   [params.homeInfoParams]
     Title = "Effective Field"
-    Content = "Physics, technology, and ideas — by Eren Erberk Erkul · EEE & Physics, METU · Ankara, Turkey"
+    Content = "Physics, technology, and ideas — by Eren Erberk Erkul"
 
   [[params.socialIcons]]
     name = "linkedin"
@@ -34,9 +41,6 @@ locale = "en-us"
   [[params.socialIcons]]
     name = "youtube"
     url = "https://www.youtube.com/@erenerberkerkul"
-  [[params.socialIcons]]
-    name = "instagram"
-    url = "https://www.instagram.com/erenerberkerkul"
   [[params.socialIcons]]
     name = "rss"
     url = "/index.xml"

@@ -1,0 +1,123 @@
+<canvas id="ripple-canvas" aria-hidden="true"></canvas>
+
+<script>
+(function() {
+  const canvas = document.getElementById('ripple-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, dpr = window.devicePixelRatio || 1;
+  const ripples = [];
+  let lastSpawn = 0;
+  let lastMouseSpawn = 0;
+  let mouseX = -1000, mouseY = -1000;
+
+  function resize() {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function spawnRipple(x, y, opts) {
+    opts = opts || {};
+    ripples.push({
+      x: x,
+      y: y,
+      radius: 0,
+      maxRadius: opts.maxRadius || (120 + Math.random() * 180),
+      speed: opts.speed || (0.45 + Math.random() * 0.35),
+      width: opts.width || (0.8 + Math.random() * 0.6),
+      opacity: opts.opacity || 0.32,
+      hueShift: opts.hueShift || (Math.random() * 30 - 15),
+      born: performance.now()
+    });
+  }
+
+  // Spontaneous ripples — calm, slow
+  function ambientSpawn(now) {
+    if (now - lastSpawn > 1400 + Math.random() * 1600) {
+      lastSpawn = now;
+      spawnRipple(
+        Math.random() * W,
+        Math.random() * H,
+        { maxRadius: 160 + Math.random() * 220, opacity: 0.22 }
+      );
+    }
+  }
+
+  // Mouse-driven ripples — gentle, throttled
+  window.addEventListener('mousemove', function(e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    const now = performance.now();
+    if (now - lastMouseSpawn > 180) {
+      lastMouseSpawn = now;
+      spawnRipple(e.clientX, e.clientY, {
+        maxRadius: 70 + Math.random() * 60,
+        speed: 0.6,
+        width: 1.0,
+        opacity: 0.28
+      });
+    }
+  });
+
+  // Click → bigger ripple
+  window.addEventListener('click', function(e) {
+    if (e.target.closest('a, button, input, textarea, select, [role="button"]')) return;
+    spawnRipple(e.clientX, e.clientY, {
+      maxRadius: 260,
+      speed: 1.3,
+      width: 1.6,
+      opacity: 0.42
+    });
+    spawnRipple(e.clientX, e.clientY, {
+      maxRadius: 180,
+      speed: 0.9,
+      width: 1.0,
+      opacity: 0.3
+    });
+  });
+
+  function frame(now) {
+    ambientSpawn(now);
+    ctx.clearRect(0, 0, W, H);
+
+    for (let i = ripples.length - 1; i >= 0; i--) {
+      const r = ripples[i];
+      r.radius += r.speed;
+      const t = r.radius / r.maxRadius;
+      if (t >= 1) {
+        ripples.splice(i, 1);
+        continue;
+      }
+      // Easing — fade in then out
+      const fadeIn = Math.min(1, t * 4);
+      const fadeOut = 1 - t;
+      const alpha = r.opacity * fadeIn * fadeOut;
+
+      ctx.beginPath();
+      ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(60, 80, 110, ' + alpha + ')';
+      ctx.lineWidth = r.width;
+      ctx.stroke();
+
+      // Secondary inner ring for depth
+      if (r.radius > 14) {
+        ctx.beginPath();
+        ctx.arc(r.x, r.y, r.radius - 8, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(80, 110, 150, ' + (alpha * 0.4) + ')';
+        ctx.lineWidth = r.width * 0.6;
+        ctx.stroke();
+      }
+    }
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
