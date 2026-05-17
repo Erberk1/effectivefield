@@ -28,7 +28,7 @@ locale = "en-us"
 
   [params.label]
     text = "Effective Field"
-    icon = "/images/logo.png"
+    icon = "/images/logo.svg"
     iconHeight = 48
 
   [params.homeInfoParams]
