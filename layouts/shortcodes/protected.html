@@ -1,0 +1,44 @@
+{{ $password := .Params.password }}
+{{ $hash := sha256 $password }}
+<div class="protected-gate" id="protected-gate">
+  <div class="protected-icon">🔒</div>
+  <p class="protected-label">This content is password protected.</p>
+  <div class="protected-form">
+    <input type="password" id="protected-input" placeholder="Enter password" autocomplete="current-password" />
+    <button onclick="checkPassword('{{ $hash }}')">Unlock</button>
+  </div>
+  <p class="protected-error" id="protected-error" style="display:none;">Incorrect password.</p>
+</div>
+
+<div class="protected-content" id="protected-content" style="display:none;">
+  {{ .Inner | markdownify }}
+</div>
+
+<script>
+function checkPassword(correctHash) {
+  const input = document.getElementById('protected-input').value;
+  // Simple hash via SubtleCrypto
+  crypto.subtle.digest('SHA-256', new TextEncoder().encode(input)).then(buf => {
+    const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    if (hex === correctHash) {
+      document.getElementById('protected-gate').style.display = 'none';
+      document.getElementById('protected-content').style.display = 'block';
+      sessionStorage.setItem('unlocked-{{ $hash }}', '1');
+    } else {
+      document.getElementById('protected-error').style.display = 'block';
+    }
+  });
+}
+
+// Auto-unlock if already entered this session
+(function() {
+  const hash = '{{ $hash }}';
+  if (sessionStorage.getItem('unlocked-' + hash) === '1') {
+    document.getElementById('protected-gate').style.display = 'none';
+    document.getElementById('protected-content').style.display = 'block';
+  }
+  document.getElementById('protected-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') checkPassword(hash);
+  });
+})();
+</script>

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>de Sitter Space — Interactive 5D Embedding</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #060612; color: #d8e0f0; font-family: 'EB Garamond', Georgia, serif; overflow: hidden; }
+
+        #header {
+            position: fixed; top: 0; left: 0; right: 0;
+            text-align: center; padding: 14px 20px 18px;
+            background: linear-gradient(to bottom, rgba(6,6,18,0.95) 60%, transparent);
+            z-index: 10; pointer-events: none;
+        }
+        #header h1 {
+            font-size: 1.35em; font-weight: 400; color: #c0d4ff;
+            letter-spacing: 0.06em; text-shadow: 0 0 20px rgba(100,140,255,0.3);
+        }
+        #header .sub {
+            margin-top: 5px; font-size: 0.82em; color: #667899;
+            font-family: 'EB Garamond', serif;
+        }
+
+        #sidebar {
+            position: fixed; top: 72px; left: 14px; width: 210px;
+            background: rgba(8,8,24,0.92); border: 1px solid rgba(60,80,140,0.2);
+            border-radius: 10px; padding: 14px 12px; z-index: 10;
+            backdrop-filter: blur(8px);
+        }
+        #sidebar h3 {
+            font-size: 0.72em; color: #5a6a8a; text-transform: uppercase;
+            letter-spacing: 0.12em; margin-bottom: 10px; font-weight: 400;
+        }
+        .pitem {
+            display: flex; align-items: center; gap: 10px;
+            padding: 7px 9px; border-radius: 6px; cursor: pointer;
+            transition: all 0.2s; margin: 2px 0;
+        }
+        .pitem:hover { background: rgba(100,140,255,0.08); }
+        .pitem.active { background: rgba(100,140,255,0.14); }
+        .pdot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 6px currentColor; }
+        .plabel { font-size: 0.88em; color: #b0bcd0; }
+
+        #sidebar .divider { border: none; border-top: 1px solid rgba(60,80,140,0.15); margin: 11px 0; }
+        #sidebar .note { font-size: 0.72em; color: #3a4a66; line-height: 1.6; }
+
+        #info {
+            position: fixed; top: 72px; right: 14px; width: 340px;
+            max-height: calc(100vh - 100px); overflow-y: auto;
+            background: rgba(8,8,24,0.94); border: 1px solid rgba(60,80,140,0.2);
+            border-radius: 10px; padding: 20px; z-index: 10; display: none;
+            backdrop-filter: blur(8px);
+        }
+        #info::-webkit-scrollbar { width: 3px; }
+        #info::-webkit-scrollbar-thumb { background: rgba(80,100,160,0.3); border-radius: 3px; }
+        .ihead {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px; padding-bottom: 10px;
+            border-bottom: 1px solid rgba(60,80,140,0.15);
+        }
+        #ititle { font-size: 1.05em; font-weight: 600; color: #c0d4ff; }
+        #iclose {
+            cursor: pointer; color: #3a4a66; font-size: 1.4em; line-height: 1;
+            width: 28px; height: 28px; display: flex; align-items: center;
+            justify-content: center; border-radius: 50%; transition: all 0.2s;
+        }
+        #iclose:hover { color: #c0d4ff; background: rgba(100,140,255,0.1); }
+
+        .elabel {
+            font-size: 0.7em; color: #5a6a8a; text-transform: uppercase;
+            letter-spacing: 0.1em; margin: 16px 0 6px; font-weight: 400;
+        }
+        .elabel:first-child { margin-top: 0; }
+
+        .math-block {
+            background: rgba(20,25,50,0.6); border-left: 3px solid #4488ff;
+            padding: 12px 14px; margin: 6px 0 10px;
+            border-radius: 0 6px 6px 0;
+            overflow-x: auto;
+        }
+        .math-block .katex { font-size: 1.05em !important; }
+        .math-block .katex-display { margin: 0.3em 0 !important; }
+        .math-block .katex-display > .katex { text-align: left !important; }
+
+        .desc {
+            font-size: 0.88em; line-height: 1.65; color: #8899bb; margin: 4px 0 8px;
+        }
+        .hl { color: #a0ccff; }
+        em { color: #d4c090; font-style: italic; }
+
+        #bar {
+            position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 6px; z-index: 10;
+        }
+        .btn {
+            padding: 8px 14px; border-radius: 6px;
+            border: 1px solid rgba(80,100,160,0.2);
+            background: rgba(10,10,30,0.88); color: #8899bb;
+            font-size: 0.82em; cursor: pointer; transition: all 0.2s;
+            font-family: 'EB Garamond', serif; backdrop-filter: blur(4px);
+        }
+        .btn:hover { background: rgba(30,35,70,0.9); color: #c0d4ff; border-color: rgba(100,140,255,0.35); }
+        .btn.active { background: rgba(40,50,100,0.7); color: #c0d4ff; border-color: rgba(100,140,255,0.4); }
+
+        #hint {
+            position: fixed; bottom: 56px; left: 50%; transform: translateX(-50%);
+            color: #2a3550; font-size: 0.76em; text-align: center; pointer-events: none; white-space: nowrap;
+        }
+
+        #tip {
+            position: fixed; background: rgba(6,6,20,0.92); color: #a0bbee;
+            padding: 5px 12px; border-radius: 5px; font-size: 0.78em;
+            pointer-events: none; display: none; z-index: 20;
+            border: 1px solid rgba(60,80,140,0.25); backdrop-filter: blur(4px);
+        }
+
+        #credit {
+            position: fixed; bottom: 18px; right: 18px; z-index: 10;
+            font-size: 0.72em; color: #2a3550; letter-spacing: 0.06em;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header">
+    <h1>de Sitter Space</h1>
+    <div class="sub" id="header-eq"></div>
+</div>
+
+<div id="sidebar">
+    <h3>Coordinate Patches</h3>
+    <div class="pitem" id="pi-global" onclick="selectPatch('global')">
+        <div class="pdot" style="color:#3377ee;background:#3377ee"></div>
+        <span class="plabel">Global</span>
+    </div>
+    <div class="pitem" id="pi-poincare" onclick="selectPatch('poincare')">
+        <div class="pdot" style="color:#ee7733;background:#ee7733"></div>
+        <span class="plabel">Poincar&eacute; (Expanding)</span>
+    </div>
+    <div class="pitem" id="pi-static" onclick="selectPatch('static')">
+        <div class="pdot" style="color:#33bb66;background:#33bb66"></div>
+        <span class="plabel">Static</span>
+    </div>
+    <div class="pitem" id="pi-contracting" onclick="selectPatch('contracting')">
+        <div class="pdot" style="color:#aa44ee;background:#aa44ee"></div>
+        <span class="plabel">Contracting</span>
+    </div>
+    <div class="pitem" id="pi-boundary" onclick="selectPatch('boundary')">
+        <div class="pdot" style="color:#e8c840;background:#e8c840"></div>
+        <span class="plabel">Boundary / Holography</span>
+    </div>
+    <hr class="divider">
+    <div class="note">
+        Yellow curves &mdash; null geodesics<br>
+        White ring &mdash; throat ($\tau = 0$)<br>
+        Dots &mdash; comoving observers<br>
+        Tessellated disks &mdash; $\mathscr{I}^\pm$
+    </div>
+</div>
+
+<div id="info">
+    <div class="ihead">
+        <span id="ititle">Coordinates</span>
+        <span id="iclose" onclick="closePanel()">&#x00D7;</span>
+    </div>
+    <div id="ibody"></div>
+</div>
+
+<div id="tip"></div>
+
+<div id="bar">
+    <button class="btn" onclick="resetView()">Reset</button>
+    <button class="btn" id="btn-wire" onclick="toggleWire()">Wireframe</button>
+    <button class="btn" id="btn-part" onclick="toggleParticles()">Observers</button>
+    <button class="btn" id="btn-spin" onclick="toggleSpin()">Auto-Spin</button>
+    <button class="btn" id="btn-bounds" onclick="toggleBoundary()">Boundaries</button>
+</div>
+
+<div id="hint">Click regions or sidebar to explore &nbsp;&middot;&nbsp; Drag to rotate &nbsp;&middot;&nbsp; Scroll to zoom</div>
+
+<div id="credit">Designed by EEE</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════════════════════════
+//  RENDER KATEX IN SIDEBAR NOTE + HEADER
+// ═══════════════════════════════════════════════════════════════════════════════
+document.getElementById('header-eq').innerHTML =
+    'Embedding in 5D Minkowski &nbsp;&middot;&nbsp; ' +
+    katex.renderToString('-u^2 + w^2 + |\\vec{x}|^2 = 1', {throwOnError:false}) +
+    ' &nbsp;&middot;&nbsp; Isometry SO(1,4)';
+renderMathInElement(document.getElementById('sidebar'), {
+    delimiters: [{left:'$',right:'$',display:false}], throwOnError: false
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  SCENE
+// ═══════════════════════════════════════════════════════════════════════════════
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.domElement.style.cssText = 'position:fixed;top:0;left:0;z-index:0';
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x060612);
+
+const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.05, 200);
+camera.position.set(5, 1.8, 5);
+
+const ctrl = new THREE.OrbitControls(camera, renderer.domElement);
+ctrl.enableDamping = true;
+ctrl.dampingFactor = 0.07;
+ctrl.minDistance = 1.8;
+ctrl.maxDistance = 25;
+
+scene.add(new THREE.AmbientLight(0x223355, 1.6));
+const dl1 = new THREE.DirectionalLight(0x8899cc, 1.0); dl1.position.set(6, 8, 6); scene.add(dl1);
+const dl2 = new THREE.DirectionalLight(0xcc9966, 0.45); dl2.position.set(-5, -4, 4); scene.add(dl2);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  GEOMETRY: HYPERBOLOID
+//  x = cosh(t)cos(p),  y = sinh(t),  z = cosh(t)sin(p)
+//  Satisfies: x² + z² - y² = 1
+// ═══════════════════════════════════════════════════════════════════════════════
+function mkGeom(tMin, tMax, tN, pMin, pMax, pN) {
+    const v = [], uv = [], idx = [];
+    for (let i = 0; i <= tN; i++) {
+        const t = tMin + (tMax - tMin) * i / tN;
+        const ch = Math.cosh(t), sh = Math.sinh(t);
+        for (let j = 0; j <= pN; j++) {
+            const p = pMin + (pMax - pMin) * j / pN;
+            v.push(ch * Math.cos(p), sh, ch * Math.sin(p));
+            uv.push(j / pN, i / tN);
+        }
+    }
+    for (let i = 0; i < tN; i++)
+        for (let j = 0; j < pN; j++) {
+            const a = i * (pN + 1) + j, b = a + pN + 1;
+            idx.push(a, b, a+1, b, b+1, a+1);
+        }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(v, 3));
+    g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    return g;
+}
+
+// Background
+scene.add(new THREE.Mesh(
+    mkGeom(-3, 3, 60, 0, Math.PI*2, 80),
+    new THREE.MeshPhongMaterial({ color: 0x0a0a1e, transparent: true, opacity: 0.2, side: THREE.DoubleSide })
+));
+
+let wireMesh = new THREE.Mesh(
+    mkGeom(-3, 3, 24, 0, Math.PI*2, 36),
+    new THREE.MeshBasicMaterial({ color: 0x1a2844, wireframe: true, transparent: true, opacity: 0.14 })
+);
+scene.add(wireMesh);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  ESCHER-INSPIRED BOUNDARY DISK TEXTURE
+// ═══════════════════════════════════════════════════════════════════════════════
+function createEscherTexture(sz) {
+    const c = document.createElement('canvas'); c.width = c.height = sz;
+    const ctx = c.getContext('2d');
+    const cx = sz/2, cy = sz/2, R = sz/2 - 6;
+
+    // disk bg
+    const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+    bg.addColorStop(0, '#0c1428'); bg.addColorStop(0.8, '#070a1a'); bg.addColorStop(1, '#14203a');
+    ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2); ctx.fill();
+
+    // equidistant curves (hyperbolic circles)
+    for (let d = 0.25; d < 4; d += 0.25) {
+        const r = R * Math.tanh(d);
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+        ctx.strokeStyle = `rgba(70,120,200,${Math.max(0.05, 0.3 - d*0.06)})`;
+        ctx.lineWidth = Math.max(0.3, 1.2 - d*0.18);
+        ctx.stroke();
+    }
+
+    // radial geodesics
+    const nR = 16;
+    for (let k = 0; k < nR; k++) {
+        const a = Math.PI*2*k/nR;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + R*Math.cos(a), cy + R*Math.sin(a));
+        ctx.strokeStyle = 'rgba(70,120,200,0.15)'; ctx.lineWidth = 0.6; ctx.stroke();
+    }
+
+    // non-diametral geodesic arcs (circular arcs ⊥ to boundary)
+    for (let k = 0; k < nR; k++) {
+        for (let off = 2; off <= 6; off += 2) {
+            const a1 = Math.PI*2*k/nR;
+            const a2 = Math.PI*2*(k + off)/nR;
+            const am = (a1+a2)/2, ad = (a2-a1)/2;
+            if (Math.abs(Math.cos(ad)) < 0.01) continue;
+            const cD = R / Math.cos(ad);
+            const acx = cx + cD*Math.cos(am), acy = cy + cD*Math.sin(am);
+            const aR = Math.abs(R * Math.tan(ad));
+            const sa = Math.atan2(cy + R*Math.sin(a1) - acy, cx + R*Math.cos(a1) - acx);
+            const ea = Math.atan2(cy + R*Math.sin(a2) - acy, cx + R*Math.cos(a2) - acx);
+            ctx.beginPath(); ctx.arc(acx, acy, aR, sa, ea, cD > 0);
+            ctx.strokeStyle = `rgba(180,150,60,${Math.max(0.04, 0.18 - off*0.02)})`;
+            ctx.lineWidth = Math.max(0.3, 0.9 - off*0.1); ctx.stroke();
+        }
+    }
+
+    // colored tiles (alternate regions)
+    const tileColors = ['rgba(60,100,180,0.08)', 'rgba(180,140,50,0.06)', 'rgba(100,60,160,0.06)'];
+    for (let ring = 0; ring < 5; ring++) {
+        const rInner = R * Math.tanh(ring * 0.5);
+        const rOuter = R * Math.tanh((ring+1) * 0.5);
+        const nSeg = nR * (ring + 1);
+        for (let s = 0; s < nSeg; s++) {
+            if ((s + ring) % 3 === 0) continue;
+            const a1 = Math.PI*2*s/nSeg, a2 = Math.PI*2*(s+1)/nSeg;
+            ctx.beginPath();
+            ctx.arc(cx, cy, rOuter, a1, a2);
+            ctx.arc(cx, cy, rInner, a2, a1, true);
+            ctx.closePath();
+            ctx.fillStyle = tileColors[(s + ring) % 3]; ctx.fill();
+        }
+    }
+
+    // boundary glow
+    for (let w = 12; w > 0; w -= 2) {
+        ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2);
+        ctx.strokeStyle = `rgba(120,170,255,${0.04 * (12-w)})`;
+        ctx.lineWidth = w; ctx.stroke();
+    }
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(160,200,255,0.7)'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // label
+    ctx.fillStyle = 'rgba(180,210,255,0.5)';
+    ctx.font = `italic ${sz*0.06}px Georgia`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('ℐ', cx, cy);
+
+    return c;
+}
+
+// Boundary disks at future/past infinity
+const boundTex = new THREE.CanvasTexture(createEscherTexture(640));
+const diskGeom = new THREE.CircleGeometry(3.6, 72);
+
+const diskTop = new THREE.Mesh(diskGeom, new THREE.MeshBasicMaterial({
+    map: boundTex, transparent: true, opacity: 0.7, side: THREE.DoubleSide, depthWrite: false
+}));
+diskTop.position.y = 3.8; diskTop.rotation.x = -Math.PI/2;
+scene.add(diskTop);
+
+const diskBot = new THREE.Mesh(diskGeom.clone(), new THREE.MeshBasicMaterial({
+    map: boundTex.clone(), transparent: true, opacity: 0.7, side: THREE.DoubleSide, depthWrite: false
+}));
+diskBot.position.y = -3.8; diskBot.rotation.x = Math.PI/2;
+scene.add(diskBot);
+
+let showBoundary = true;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  PATCH DEFINITIONS
+// ═══════════════════════════════════════════════════════════════════════════════
+const PATCHES = {
+    global: {
+        label: 'Global Coordinates',
+        color: 0x2255cc, emissive: 0x0a1a44,
+        tMin: -2.6, tMax: 2.6, tN: 60, pMin: 0, pMax: Math.PI*2, pN: 80,
+        camPos: new THREE.Vector3(5.5, 0.5, 5.5),
+        camTgt: new THREE.Vector3(0, 0, 0),
+        html: `
+<div class="elabel">Embedding</div>
+<div class="math-block" style="border-color:#3377ee">
+$$u = \\sinh\\tau \\qquad w = \\cosh\\tau\\,\\cos\\alpha \\qquad r = \\cosh\\tau\\,\\sin\\alpha$$
+</div>
+<div class="elabel">Constraint (5D Minkowski)</div>
+<div class="math-block" style="border-color:#3377ee">
+$$\\eta_{AB} = \\mathrm{diag}(+1,\\,-1,\\,-1,\\,-1,\\,-1)$$
+$$-u^2 + w^2 + |\\vec{x}|^2 = \\ell^2 = 1$$
+</div>
+<div class="elabel">Induced Metric</div>
+<div class="math-block" style="border-color:#3377ee">
+$$ds^2 = d\\tau^2 - \\cosh^2\\!\\tau\\;d\\Omega_3^2$$
+$$d\\Omega_3^2 = d\\alpha^2 + \\sin^2\\!\\alpha\\;d\\phi^2$$
+</div>
+<div class="elabel">Eliminate $w$</div>
+<div class="math-block" style="border-color:#3377ee">
+$$w\\,dw = u\\,du - r\\,dr$$
+$$dw^2 = \\frac{(u\\,du - r\\,dr)^2}{u^2 + 1 - r^2}$$
+</div>
+<div class="desc">Scale factor $a(\\tau) = \\cosh\\tau$ is minimal at the throat $\\tau = 0$.</div>
+<div class="desc">Range: $\\tau \\in (-\\infty,+\\infty)$, $\\;\\alpha \\in [0,\\pi]$</div>`
+    },
+
+    poincare: {
+        label: 'Poincaré (Expanding)',
+        color: 0xaa4400, emissive: 0x2a1000,
+        tMin: 0.0, tMax: 2.6, tN: 45, pMin: 0, pMax: Math.PI*2, pN: 80,
+        camPos: new THREE.Vector3(1.5, 5.5, 3.5),
+        camTgt: new THREE.Vector3(0, 1.2, 0),
+        html: `
+<div class="elabel">Flat Coordinates</div>
+<div class="math-block" style="border-color:#ee7733">
+$$u = \\sinh\\tau + \\tfrac{1}{2}\\,e^\\tau\\,\\rho^2$$
+$$w = -\\cosh\\tau + \\tfrac{1}{2}\\,e^\\tau\\,\\rho^2$$
+$$r = e^\\tau\\,\\rho$$
+</div>
+<div class="elabel">Metric (Inflationary)</div>
+<div class="math-block" style="border-color:#ee7733">
+$$ds^2 = d\\tau^2 - e^{2\\tau}\\!\\left(d\\rho^2 + \\rho^2\\,d\\Omega^2\\right)$$
+</div>
+<div class="elabel">Patch</div>
+<div class="math-block" style="border-color:#ee7733">
+$$u - w = e^\\tau > 0$$
+</div>
+<div class="desc">Spatial sections are <span class="hl">flat $\\mathbb{R}^3$</span>. Hubble rate $H = \\dot{a}/a = 1$.</div>
+<div class="desc">The metric of <em>inflationary cosmology</em>. Comoving observers sit at $\\rho = \\rho_0 = \\mathrm{const}$.</div>`
+    },
+
+    static: {
+        label: 'Static Coordinates',
+        color: 0x116633, emissive: 0x041a0d,
+        tMin: -2.2, tMax: 2.2, tN: 55, pMin: -Math.PI*0.44, pMax: Math.PI*0.44, pN: 45,
+        camPos: new THREE.Vector3(5.5, 0, 1.2),
+        camTgt: new THREE.Vector3(1, 0, 0),
+        html: `
+<div class="elabel">Static Coordinates ($\\rho \\leq 1$)</div>
+<div class="math-block" style="border-color:#33bb66">
+$$u = \\sqrt{1-\\rho^2}\\;\\sinh t \\qquad r = \\rho$$
+$$w = -\\sqrt{1-\\rho^2}\\;\\cosh t$$
+</div>
+<div class="elabel">Time-Independent Metric</div>
+<div class="math-block" style="border-color:#33bb66">
+$$ds^2 = (1-\\rho^2)\\,dt^2 - \\frac{d\\rho^2}{1-\\rho^2} - \\rho^2\\,d\\Omega^2$$
+</div>
+<div class="desc">Killing vector $\\partial/\\partial t$ &mdash; metric is <span class="hl">time-independent</span>.</div>
+<div class="elabel">Cosmological Horizon</div>
+<div class="math-block" style="border-color:#33bb66">
+$$g_{tt} = (1 - \\rho^2) \\;\\xrightarrow{\\rho\\to 1}\\; 0$$
+</div>
+<div class="desc">At $\\rho = 1$: signals cannot reach the static observer at $\\rho = 0$.</div>
+<div class="elabel">Geodesic Equation</div>
+<div class="math-block" style="border-color:#33bb66">
+$$\\frac{d^2 x^\\mu}{d\\lambda^2} + \\Gamma^\\mu_{\\;\\alpha\\beta}\\,\\frac{dx^\\alpha}{d\\lambda}\\,\\frac{dx^\\beta}{d\\lambda} = 0$$
+</div>
+<div class="desc">Free-falling observers ($\\rho = \\mathrm{const}$ in Poincar&eacute;) drift through this static frame.</div>`
+    },
+
+    contracting: {
+        label: 'Contracting Poincaré',
+        color: 0x7711bb, emissive: 0x1a0530,
+        tMin: -2.6, tMax: 0.0, tN: 45, pMin: 0, pMax: Math.PI*2, pN: 80,
+        camPos: new THREE.Vector3(1.5, -5.5, 3.5),
+        camTgt: new THREE.Vector3(0, -1.2, 0),
+        html: `
+<div class="elabel">Past Poincar&eacute; Patch</div>
+<div class="math-block" style="border-color:#aa44ee">
+$$u + w < 0 \\qquad\\text{(time-reversal of expanding patch)}$$
+</div>
+<div class="elabel">Metric</div>
+<div class="math-block" style="border-color:#aa44ee">
+$$ds^2 = d\\tau^2 - e^{2\\tau}\\!\\left(d\\rho^2 + \\rho^2\\,d\\Omega^2\\right)$$
+</div>
+<div class="elabel">Coverage</div>
+<div class="math-block" style="border-color:#aa44ee">
+$$\\text{Expanding} \\cup \\text{Contracting} = \\text{dS} \\setminus \\{\\text{null boundaries}\\}$$
+</div>
+<div class="desc">The universe <em>contracts</em>. The boundary between patches is a pair of null surfaces (yellow curves).</div>`
+    },
+
+    boundary: {
+        label: 'Boundary / Holography',
+        color: 0xc8a020, emissive: 0x2a2008,
+        tMin: -3, tMax: 3, tN: 10, pMin: 0, pMax: 0.001, pN: 2,
+        camPos: new THREE.Vector3(0, 7, 3),
+        camTgt: new THREE.Vector3(0, 2.5, 0),
+        html: `
+<div class="elabel">dS/CFT Correspondence</div>
+<div class="math-block" style="border-color:#e8c840">
+$$\\mathcal{Z}_{\\text{grav}}[\\text{dS}_{d+1}] \\;\\sim\\; \\mathcal{Z}_{\\text{CFT}}[\\mathscr{I}^+]$$
+</div>
+<div class="desc">Strominger (2001): quantum gravity in dS is dual to a <span class="hl">Euclidean CFT</span> on the future boundary $\\mathscr{I}^+ \\cong S^3$.</div>
+<div class="elabel">Group Structure Isomorphism</div>
+<div class="math-block" style="border-color:#e8c840">
+$$\\mathrm{Isom}(\\mathrm{dS}_4) = SO(1,4) \\;\\cong\\; \\mathrm{Conf}(S^3)$$
+$$\\mathrm{Isom}(\\mathrm{AdS}_5) = SO(2,4) \\;\\cong\\; \\mathrm{Conf}(\\mathbb{R}^{3,1})$$
+</div>
+<div class="elabel">Generator Decomposition &nbsp; $\\dim = 10$</div>
+<div class="math-block" style="border-color:#e8c840">
+$$\\underbrace{M_{AB}}_{\\text{ambient SO(1,4)}} \\;\\xrightarrow{\\text{boundary}} \\;\\bigl\\{\\,\\underbrace{P_a}_{3},\\;\\underbrace{M_{ab}}_{3},\\;\\underbrace{D}_{1},\\;\\underbrace{K_a}_{3}\\,\\bigr\\}$$
+</div>
+<div class="elabel">Conformal Algebra $\\mathfrak{so}(1,4)$</div>
+<div class="math-block" style="border-color:#e8c840">
+$$[D,\\,P_a] = P_a \\qquad [D,\\,K_a] = -K_a$$
+$$[K_a,\\,P_b] = 2\\bigl(\\eta_{ab}\\,D - M_{ab}\\bigr)$$
+$$[M_{ab},\\,P_c] = \\eta_{bc}\\,P_a - \\eta_{ac}\\,P_b$$
+</div>
+<div class="desc">$P_a$: translations &nbsp; $M_{ab}$: rotations &nbsp; $D$: dilation &nbsp; $K_a$: special conformal.<br>The same algebra acts as <span class="hl">isometries in the bulk</span> and as <span class="hl">conformal symmetries on $\\mathscr{I}^+$</span>.</div>
+<div class="elabel">Boundary Operator Map</div>
+<div class="math-block" style="border-color:#e8c840">
+$$\\langle\\mathcal{O}\\rangle_{\\text{CFT}} = \\lim_{\\tau\\to\\infty} e^{\\Delta\\tau}\\,\\phi(\\tau,\\vec{x})$$
+</div>
+<div class="elabel">AdS/CFT Analogy</div>
+<div class="math-block" style="border-color:#e8c840">
+$$\\text{AdS}: \\;\\langle\\mathcal{O}\\rangle = \\lim_{r\\to\\infty} r^\\Delta\\,\\phi(r,x)$$
+$$\\text{dS}: \\;\\langle\\mathcal{O}\\rangle = \\lim_{\\tau\\to\\infty} e^{\\Delta\\tau}\\,\\phi(\\tau,x)$$
+</div>
+<div class="elabel">Escher &amp; the Poincar&eacute; Disk</div>
+<div class="desc">The tessellated disks at $\\mathscr{I}^\\pm$ visualize the
+<span class="hl">conformal boundary</span> where the holographic dual lives.
+Escher's <em>Circle Limit</em> series depicts the Poincar&eacute; disk model
+of hyperbolic space &mdash; figures shrink toward the boundary but remain
+<em>the same size in the intrinsic geometry</em>.</div>
+<div class="desc">This is the <span class="hl">UV/IR connection</span>: small distances on the boundary
+encode large-scale bulk geometry. The boundary tessellation encodes
+<em>all information</em> in the bulk spacetime.</div>
+<div class="elabel">Holographic Entropy</div>
+<div class="math-block" style="border-color:#e8c840">
+$$S_{\\text{dS}} = \\frac{\\text{Area}(\\text{horizon})}{4\\,G_N} = \\frac{\\pi\\,\\ell^2}{G_N}$$
+</div>`
+    }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  PATCH MESHES
+// ═══════════════════════════════════════════════════════════════════════════════
+const meshMap = {}, clickable = [];
+
+for (const [id, d] of Object.entries(PATCHES)) {
+    if (id === 'boundary') continue;
+    const mat = new THREE.MeshPhongMaterial({
+        color: d.color, emissive: d.emissive,
+        transparent: true, opacity: 0.38,
+        side: THREE.DoubleSide, shininess: 35,
+    });
+    const mesh = new THREE.Mesh(mkGeom(d.tMin, d.tMax, d.tN, d.pMin, d.pMax, d.pN), mat);
+    mesh.userData.id = id;
+    scene.add(mesh);
+    meshMap[id] = mesh;
+    clickable.push(mesh);
+}
+// boundary disks are clickable too
+diskTop.userData.id = 'boundary';
+diskBot.userData.id = 'boundary';
+clickable.push(diskTop, diskBot);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  SURFACE LINES
+// ═══════════════════════════════════════════════════════════════════════════════
+function addLine(pts, color, opacity) {
+    scene.add(new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(pts),
+        new THREE.LineBasicMaterial({ color, transparent: true, opacity })
+    ));
+}
+
+// Latitude circles
+for (let ti = -3; ti <= 3.01; ti += 0.5) {
+    const ch = Math.cosh(ti), sh = Math.sinh(ti), pts = [];
+    for (let j = 0; j <= 100; j++) {
+        const p = Math.PI*2*j/100;
+        pts.push(new THREE.Vector3(ch*Math.cos(p), sh, ch*Math.sin(p)));
+    }
+    addLine(pts, Math.abs(ti) < 0.01 ? 0xffffff : 0x182838, Math.abs(ti) < 0.01 ? 0.85 : 0.28);
+}
+
+// Longitude lines
+for (let k = 0; k < 16; k++) {
+    const p = Math.PI*2*k/16, pts = [];
+    for (let i = 0; i <= 90; i++) {
+        const t = -3 + 6*i/90;
+        pts.push(new THREE.Vector3(Math.cosh(t)*Math.cos(p), Math.sinh(t), Math.cosh(t)*Math.sin(p)));
+    }
+    addLine(pts, 0x141e30, 0.25);
+}
+
+// Null geodesics from static observer
+for (const ts of [1, -1])
+    for (const ps of [1, -1]) {
+        const pts = [];
+        for (let i = 0; i <= 80; i++) {
+            const t = ts * i * 2.8 / 80;
+            const p = ps * Math.atan(Math.sinh(t));
+            pts.push(new THREE.Vector3(Math.cosh(t)*Math.cos(p), Math.sinh(t), Math.cosh(t)*Math.sin(p)));
+        }
+        addLine(pts, 0xddcc44, 0.55);
+    }
+
+// Vertical axis
+addLine([new THREE.Vector3(0,-4.5,0), new THREE.Vector3(0,4.5,0)], 0x1a2540, 0.3);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  PARTICLES (comoving observers)
+// ═══════════════════════════════════════════════════════════════════════════════
+const NP = 180;
+const pt = new Float32Array(NP), pp = new Float32Array(NP), ppos = new Float32Array(NP*3);
+let showPart = true;
+for (let i = 0; i < NP; i++) { pt[i] = (Math.random()*2-1)*6; pp[i] = Math.random()*Math.PI*2; }
+
+const partGeom = new THREE.BufferGeometry();
+partGeom.setAttribute('position', new THREE.BufferAttribute(ppos, 3));
+const partSys = new THREE.Points(partGeom,
+    new THREE.PointsMaterial({ color: 0x88aaff, size: 0.04, transparent: true, opacity: 0.7, sizeAttenuation: true }));
+scene.add(partSys);
+
+function stepPart(dt) {
+    for (let i = 0; i < NP; i++) {
+        pt[i] += dt; if (pt[i] > 3.2) pt[i] = -3.2;
+        ppos[i*3] = Math.cosh(pt[i])*Math.cos(pp[i]);
+        ppos[i*3+1] = Math.sinh(pt[i]);
+        ppos[i*3+2] = Math.cosh(pt[i])*Math.sin(pp[i]);
+    }
+    partGeom.attributes.position.needsUpdate = true;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  LABELS
+// ═══════════════════════════════════════════════════════════════════════════════
+function mkSprite(text, pos, col, sw) {
+    const c = document.createElement('canvas'); c.width = 320; c.height = 72;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = col; ctx.font = 'italic 30px Georgia';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(text, 160, 36);
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: new THREE.CanvasTexture(c), transparent: true, opacity: 0.85
+    }));
+    s.position.set(...pos); s.scale.set(sw || 1.4, 0.32, 1);
+    scene.add(s);
+}
+mkSprite('u → +∞  (ℐ⁺)', [0, 4.3, 0], '#7799bb', 1.8);
+mkSprite('u → −∞  (ℐ⁻)', [0, -4.3, 0], '#7799bb', 1.8);
+mkSprite('τ = 0  (throat)', [2, 0.22, 0.6], '#aabbcc', 1.7);
+mkSprite('Poincaré', [0, 2.2, -1.8], '#dd8855', 1.2);
+mkSprite('Contracting', [0, -2.2, -1.8], '#bb77ee', 1.4);
+mkSprite('Static', [1.8, 0, 1], '#44bb77', 1.1);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  INTERACTION
+// ═══════════════════════════════════════════════════════════════════════════════
+const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
+const tip = document.getElementById('tip');
+let hovered = null, selected = null, spinning = false;
+
+renderer.domElement.addEventListener('mousemove', e => {
+    mouse.x = (e.clientX/innerWidth)*2-1; mouse.y = -(e.clientY/innerHeight)*2+1;
+    ray.setFromCamera(mouse, camera);
+    const hits = ray.intersectObjects(clickable);
+    if (hits.length) {
+        hovered = hits[0].object.userData.id;
+        tip.style.cssText = `display:block;left:${e.clientX+14}px;top:${e.clientY-26}px`;
+        tip.textContent = PATCHES[hovered].label;
+        renderer.domElement.style.cursor = 'pointer';
+    } else { hovered = null; tip.style.display = 'none'; renderer.domElement.style.cursor = 'default'; }
+});
+
+renderer.domElement.addEventListener('click', e => {
+    mouse.x = (e.clientX/innerWidth)*2-1; mouse.y = -(e.clientY/innerHeight)*2+1;
+    ray.setFromCamera(mouse, camera);
+    const hits = ray.intersectObjects(clickable);
+    if (hits.length) selectPatch(hits[0].object.userData.id);
+});
+
+let tween = null;
+function tweenTo(pos, tgt) {
+    tween = { sp: camera.position.clone(), st: ctrl.target.clone(), ep: pos, et: tgt, t: 0, dur: 100 };
+}
+
+function selectPatch(id) {
+    selected = id;
+    const def = PATCHES[id];
+
+    document.querySelectorAll('.pitem').forEach(el => el.classList.remove('active'));
+    const pi = document.getElementById('pi-' + id);
+    if (pi) pi.classList.add('active');
+
+    for (const [pid, m] of Object.entries(meshMap)) {
+        m.material.opacity = pid === id ? 0.68 : 0.04;
+        m.material.emissive.setHex(pid === id ? PATCHES[pid].emissive : 0x000000);
+    }
+
+    if (id === 'boundary') {
+        diskTop.material.opacity = 0.9; diskBot.material.opacity = 0.9;
+    } else {
+        diskTop.material.opacity = 0.35; diskBot.material.opacity = 0.35;
+    }
+
+    document.getElementById('ititle').textContent = def.label;
+    document.getElementById('ibody').innerHTML = def.html;
+    document.getElementById('info').style.display = 'block';
+
+    renderMathInElement(document.getElementById('ibody'), {
+        delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+        ],
+        throwOnError: false
+    });
+
+    tweenTo(def.camPos, def.camTgt);
+}
+
+function closePanel() {
+    document.getElementById('info').style.display = 'none';
+    document.querySelectorAll('.pitem').forEach(el => el.classList.remove('active'));
+    selected = null;
+    for (const m of Object.values(meshMap)) { m.material.opacity = 0.38; }
+    diskTop.material.opacity = 0.7; diskBot.material.opacity = 0.7;
+}
+
+function resetView() { closePanel(); tweenTo(new THREE.Vector3(5, 1.8, 5), new THREE.Vector3(0,0,0)); }
+function toggleWire() {
+    wireMesh.visible = !wireMesh.visible;
+    document.getElementById('btn-wire').classList.toggle('active');
+}
+function toggleParticles() {
+    showPart = !showPart; partSys.visible = showPart;
+    document.getElementById('btn-part').classList.toggle('active');
+}
+function toggleSpin() {
+    spinning = !spinning;
+    document.getElementById('btn-spin').classList.toggle('active');
+}
+function toggleBoundary() {
+    showBoundary = !showBoundary;
+    diskTop.visible = showBoundary; diskBot.visible = showBoundary;
+    document.getElementById('btn-bounds').classList.toggle('active');
+}
+
+function applyHover() {
+    if (selected) return;
+    for (const [id, m] of Object.entries(meshMap)) m.material.opacity = id === hovered ? 0.56 : 0.36;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  RESIZE + LOOP
+// ═══════════════════════════════════════════════════════════════════════════════
+window.addEventListener('resize', () => {
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+});
+
+const clock = new THREE.Clock();
+(function loop() {
+    requestAnimationFrame(loop);
+    const dt = clock.getDelta();
+    ctrl.autoRotate = spinning && !tween;
+    ctrl.autoRotateSpeed = 0.5;
+    ctrl.update();
+
+    if (tween) {
+        tween.t++;
+        const p = Math.min(tween.t / tween.dur, 1);
+        const e = p < 0.5 ? 2*p*p : -1 + (4-2*p)*p;
+        camera.position.lerpVectors(tween.sp, tween.ep, e);
+        ctrl.target.lerpVectors(tween.st, tween.et, e);
+        ctrl.update();
+        if (tween.t >= tween.dur) tween = null;
+    }
+
+    // gentle boundary disk rotation
+    diskTop.rotation.z += dt * 0.02;
+    diskBot.rotation.z -= dt * 0.02;
+
+    stepPart(dt * 0.38);
+    applyHover();
+    renderer.render(scene, camera);
+})();
+
+// set initial button states
+document.getElementById('btn-part').classList.add('active');
+document.getElementById('btn-bounds').classList.add('active');
+</script>
+</body>
+</html>

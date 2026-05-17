@@ -1,0 +1,12 @@
+[build]
+  publish = "public"
+  command = "hugo --gc --minify"
+
+[build.environment]
+  HUGO_VERSION = "0.161.1"
+
+[[redirects]]
+  from = "https://www.effectivefield.com/*"
+  to = "https://effectivefield.com/:splat"
+  status = 301
+  force = true
