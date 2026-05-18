@@ -1,10 +1,10 @@
 ---
 title: "Holographic Spectral Alignment — 3MT Competition, METU Engineering Day"
-date: 2025-05-15
+date: 2026-05-20
 math: true
-summary: "Three-minute thesis presentation on Holographic Spectral Alignment, delivered at METU Engineering Day."
+summary: "Engineering Day 3MT Competition on 20th of May 2026."
 ---
 
-*Presented at the METU Engineering Day 3MT (Three Minute Thesis) Competition.*
+*Engineering Day 3MT Competition on 20th of May 2026.*
 
 {{< pptx url="/pptx/Holographic_3MT_1.pptx" title="Holographic Spectral Alignment — 3MT Competition" >}}
