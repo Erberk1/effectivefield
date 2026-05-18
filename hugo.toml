@@ -37,10 +37,10 @@ locale = "en-us"
 
   [[params.socialIcons]]
     name = "linkedin"
-    url = "https://www.linkedin.com/in/erenerberkerkul"
+    url = "https://www.linkedin.com/in/eren-erberk-erkul-60919b308"
   [[params.socialIcons]]
     name = "youtube"
-    url = "https://www.youtube.com/@erenerberkerkul"
+    url = "https://www.youtube.com/@erenerberkerkul3049"
   [[params.socialIcons]]
     name = "rss"
     url = "/index.xml"
@@ -57,26 +57,31 @@ locale = "en-us"
     url = "/posts/"
     weight = 2
   [[menu.main]]
-    identifier = "about"
-    name = "About"
-    url = "/about/"
+    identifier = "publications"
+    name = "Publications"
+    url = "/publications/"
     weight = 3
-  [[menu.main]]
-    identifier = "contact"
-    name = "Contact"
-    url = "/contact/"
-    weight = 4
   [[menu.main]]
     identifier = "simulations"
     name = "Simulations"
     url = "/simulations/"
+    weight = 4
+  [[menu.main]]
+    identifier = "about"
+    name = "About"
+    url = "/about/"
     weight = 5
+  [[menu.main]]
+    identifier = "contact"
+    name = "Contact"
+    url = "/contact/"
+    weight = 6
 
 [markup]
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
   [markup.highlight]
-    style = "github"
+    style = "github-dark"
     lineNos = false
     codeFences = true

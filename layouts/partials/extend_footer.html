@@ -10,8 +10,6 @@
   const particles = [];
   let lastSpawn = 0;
   let lastMouseSpawn = 0;
-  let mouseX = -1000, mouseY = -1000;
-  let mouseActive = false;
 
   function resize() {
     W = window.innerWidth;
@@ -24,6 +22,24 @@
   }
   resize();
   window.addEventListener('resize', resize);
+
+  // Theme-adaptive colors
+  function getColors() {
+    var dark = document.documentElement.dataset.theme === 'dark';
+    return dark ? {
+      wave: [80, 130, 180],
+      waveInner: [100, 150, 200],
+      waveGlow: [60, 110, 160],
+      particle: [120, 200, 190],
+      particleGlow: [100, 180, 170]
+    } : {
+      wave: [40, 70, 140],
+      waveInner: [60, 90, 160],
+      waveGlow: [30, 60, 130],
+      particle: [20, 130, 120],
+      particleGlow: [15, 110, 100]
+    };
+  }
 
   function spawnRipple(x, y, opts) {
     opts = opts || {};
@@ -51,7 +67,7 @@
     });
   }
 
-  // Always spawn ambient ripples — multiple always visible
+  // Ambient ripples — always multiple visible
   function ambientSpawn(now) {
     if (now - lastSpawn > 600 + Math.random() * 800) {
       lastSpawn = now;
@@ -63,30 +79,22 @@
     }
   }
 
-  // Seed initial ripples so the page is never empty
+  // Seed initial ripples
   function seedRipples() {
-    for (let i = 0; i < 8; i++) {
+    for (var i = 0; i < 8; i++) {
       spawnRipple(
         Math.random() * W,
         Math.random() * H,
-        {
-          maxRadius: 180 + Math.random() * 260,
-          opacity: 0.35,
-          speed: 0.35 + Math.random() * 0.35
-        }
+        { maxRadius: 180 + Math.random() * 260, opacity: 0.35, speed: 0.35 + Math.random() * 0.35 }
       );
-      // Advance them to different stages
       ripples[ripples.length - 1].radius = Math.random() * ripples[ripples.length - 1].maxRadius * 0.7;
     }
   }
   seedRipples();
 
-  // Mouse-driven ripples — more frequent and visible on interaction
+  // Mouse-driven ripples
   window.addEventListener('mousemove', function(e) {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-    mouseActive = true;
-    const now = performance.now();
+    var now = performance.now();
     if (now - lastMouseSpawn > 120) {
       lastMouseSpawn = now;
       spawnRipple(e.clientX, e.clientY, {
@@ -100,11 +108,8 @@
 
   // Touch support
   window.addEventListener('touchmove', function(e) {
-    const touch = e.touches[0];
-    mouseX = touch.clientX;
-    mouseY = touch.clientY;
-    mouseActive = true;
-    const now = performance.now();
+    var touch = e.touches[0];
+    var now = performance.now();
     if (now - lastMouseSpawn > 100) {
       lastMouseSpawn = now;
       spawnRipple(touch.clientX, touch.clientY, {
@@ -116,60 +121,42 @@
     }
   }, { passive: true });
 
-  // Click / tap → bigger splash
+  // Click/tap splash
   window.addEventListener('click', function(e) {
     if (e.target.closest('a, button, input, textarea, select, [role="button"]')) return;
     spawnRipple(e.clientX, e.clientY, {
-      maxRadius: 300,
-      speed: 1.5,
-      width: 2.0,
-      opacity: 0.6
+      maxRadius: 300, speed: 1.5, width: 2.0, opacity: 0.6
     });
     spawnRipple(e.clientX, e.clientY, {
-      maxRadius: 200,
-      speed: 1.0,
-      width: 1.4,
-      opacity: 0.45
+      maxRadius: 200, speed: 1.0, width: 1.4, opacity: 0.45
     });
-    // Burst of particles on click
-    for (let i = 0; i < 12; i++) {
+    for (var i = 0; i < 12; i++) {
       spawnParticle(e.clientX + (Math.random() - 0.5) * 20, e.clientY + (Math.random() - 0.5) * 20);
     }
   });
 
-  // Check for wave interference and spawn particles
+  // Interference particle spawning
   function checkInterference() {
-    for (let i = 0; i < ripples.length; i++) {
-      for (let j = i + 1; j < ripples.length; j++) {
-        const r1 = ripples[i], r2 = ripples[j];
-        const dx = r2.x - r1.x, dy = r2.y - r1.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        // Check if the rings intersect
-        const sumR = r1.radius + r2.radius;
-        const diffR = Math.abs(r1.radius - r2.radius);
+    for (var i = 0; i < ripples.length; i++) {
+      for (var j = i + 1; j < ripples.length; j++) {
+        var r1 = ripples[i], r2 = ripples[j];
+        var dx = r2.x - r1.x, dy = r2.y - r1.y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        var sumR = r1.radius + r2.radius;
+        var diffR = Math.abs(r1.radius - r2.radius);
 
         if (dist < sumR && dist > diffR && dist > 0) {
-          // Rings intersect — find approximate intersection points
-          const t1 = r1.radius / r1.maxRadius;
-          const t2 = r2.radius / r2.maxRadius;
-          // Only spawn particles when both rings are fairly visible
+          var t1 = r1.radius / r1.maxRadius;
+          var t2 = r2.radius / r2.maxRadius;
           if (t1 > 0.1 && t1 < 0.85 && t2 > 0.1 && t2 < 0.85) {
-            // Probability-based spawning to avoid flooding
             if (Math.random() < 0.04) {
-              // Calculate intersection point
-              const a = (r1.radius * r1.radius - r2.radius * r2.radius + dist * dist) / (2 * dist);
-              const h = Math.sqrt(Math.max(0, r1.radius * r1.radius - a * a));
-              const px = r1.x + a * (dx / dist);
-              const py = r1.y + a * (dy / dist);
-              const ix1 = px + h * (-dy / dist);
-              const iy1 = py + h * (dx / dist);
-              const ix2 = px - h * (-dy / dist);
-              const iy2 = py - h * (dx / dist);
-
-              spawnParticle(ix1, iy1);
+              var a = (r1.radius * r1.radius - r2.radius * r2.radius + dist * dist) / (2 * dist);
+              var h = Math.sqrt(Math.max(0, r1.radius * r1.radius - a * a));
+              var px = r1.x + a * (dx / dist);
+              var py = r1.y + a * (dy / dist);
+              spawnParticle(px + h * (-dy / dist), py + h * (dx / dist));
               if (Math.random() < 0.5) {
-                spawnParticle(ix2, iy2);
+                spawnParticle(px - h * (-dy / dist), py - h * (dx / dist));
               }
             }
           }
@@ -181,77 +168,63 @@
   function frame(now) {
     ambientSpawn(now);
     ctx.clearRect(0, 0, W, H);
+    var c = getColors();
 
     // Draw ripples
-    for (let i = ripples.length - 1; i >= 0; i--) {
-      const r = ripples[i];
+    for (var i = ripples.length - 1; i >= 0; i--) {
+      var r = ripples[i];
       r.radius += r.speed;
-      const t = r.radius / r.maxRadius;
-      if (t >= 1) {
-        ripples.splice(i, 1);
-        continue;
-      }
-      // Easing — fade in then out
-      const fadeIn = Math.min(1, t * 5);
-      const fadeOut = 1 - t;
-      const alpha = r.opacity * fadeIn * fadeOut;
+      var t = r.radius / r.maxRadius;
+      if (t >= 1) { ripples.splice(i, 1); continue; }
+      var fadeIn = Math.min(1, t * 5);
+      var fadeOut = 1 - t;
+      var alpha = r.opacity * fadeIn * fadeOut;
 
-      // Main ring — cool blue tone
       ctx.beginPath();
       ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(80, 130, 180, ' + alpha + ')';
+      ctx.strokeStyle = 'rgba(' + c.wave.join(',') + ',' + alpha + ')';
       ctx.lineWidth = r.width;
       ctx.stroke();
 
-      // Secondary inner ring for depth — slightly different tone
       if (r.radius > 12) {
         ctx.beginPath();
         ctx.arc(r.x, r.y, r.radius - 7, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(100, 150, 200, ' + (alpha * 0.45) + ')';
+        ctx.strokeStyle = 'rgba(' + c.waveInner.join(',') + ',' + (alpha * 0.45) + ')';
         ctx.lineWidth = r.width * 0.5;
         ctx.stroke();
       }
 
-      // Faint outer glow
       if (r.radius > 20 && alpha > 0.15) {
         ctx.beginPath();
         ctx.arc(r.x, r.y, r.radius + 4, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(60, 110, 160, ' + (alpha * 0.2) + ')';
+        ctx.strokeStyle = 'rgba(' + c.waveGlow.join(',') + ',' + (alpha * 0.2) + ')';
         ctx.lineWidth = r.width * 2.5;
         ctx.stroke();
       }
     }
 
-    // Check interference and spawn particles
     checkInterference();
 
-    // Draw and update particles — warmer/teal tone, distinct from waves
-    for (let i = particles.length - 1; i >= 0; i--) {
-      const p = particles[i];
+    // Draw particles
+    for (var i = particles.length - 1; i >= 0; i--) {
+      var p = particles[i];
       p.x += p.vx;
       p.y += p.vy;
       p.life -= p.decay;
+      if (p.life <= 0) { particles.splice(i, 1); continue; }
+      var pa = p.life * 0.7;
 
-      if (p.life <= 0) {
-        particles.splice(i, 1);
-        continue;
-      }
-
-      const alpha = p.life * 0.7;
-      // Particles in teal/warm accent — slightly different from the blue waves
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(120, 200, 190, ' + alpha + ')';
+      ctx.fillStyle = 'rgba(' + c.particle.join(',') + ',' + pa + ')';
       ctx.fill();
 
-      // Tiny glow around particle
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size + 2, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(100, 180, 170, ' + (alpha * 0.25) + ')';
+      ctx.fillStyle = 'rgba(' + c.particleGlow.join(',') + ',' + (pa * 0.25) + ')';
       ctx.fill();
     }
 
-    // Cap arrays to prevent memory issues
     if (ripples.length > 60) ripples.splice(0, ripples.length - 60);
     if (particles.length > 200) particles.splice(0, particles.length - 200);
 

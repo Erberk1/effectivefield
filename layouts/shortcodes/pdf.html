@@ -1,7 +1,7 @@
-<a class="pdf-card" href="{{ .Get "url" }}" target="_blank" download>
-  <span class="pdf-icon">📄</span>
-  <span class="pdf-info">
-    <span class="pdf-title">{{ .Get "title" }}</span>
-    <span class="pdf-action">Download PDF</span>
-  </span>
-</a>
+<div class="pdf-embed-container">
+  <div class="pdf-embed-header">
+    <span class="pdf-embed-title">📄 {{ .Get "title" }}</span>
+    <a class="pdf-embed-download" href="{{ .Get "url" }}" target="_blank" download>Download</a>
+  </div>
+  <iframe class="pdf-embed-frame" src="{{ .Get "url" }}" loading="lazy"></iframe>
+</div>

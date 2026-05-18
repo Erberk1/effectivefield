@@ -1,8 +1,29 @@
 /* ════════════════════════════════════════════════════════
-   EFFECTIVE FIELD — Dark immersive design
+   EFFECTIVE FIELD — Light/Dark adaptive design
    ──────────────────────────────────────────────────────── */
 
+/* ── Light mode (default) ─────────────────────────────── */
 :root {
+  --ink: #1a1d24;
+  --ink-soft: #3a3f4a;
+  --ink-faint: #6a6f79;
+  --ink-ghost: #a0a4ac;
+  --paper: #f4f2eb;
+  --paper-warm: #eae8e0;
+  --rule: #d0cdc4;
+  --accent: #2c3e50;
+  --link: #2a5090;
+  --header-bg: rgba(244, 242, 235, 0.92);
+  --content-bg: rgba(244, 242, 235, 0.88);
+  --card-bg: rgba(244, 242, 235, 0.65);
+  --selection-bg: rgba(42, 80, 144, 0.18);
+  --shadow: rgba(26, 29, 36, 0.08);
+  --code-bg: #e4e1d8;
+  --error: #a14040;
+}
+
+/* ── Dark mode ────────────────────────────────────────── */
+:root[data-theme="dark"] {
   --ink: #f0eee6;
   --ink-soft: #c8c4b8;
   --ink-faint: #8a8678;
@@ -12,6 +33,13 @@
   --rule: #2a2c34;
   --accent: #b8c4d8;
   --link: #8eb4e8;
+  --header-bg: rgba(10, 11, 15, 0.88);
+  --content-bg: rgba(10, 11, 15, 0.88);
+  --card-bg: rgba(17, 18, 24, 0.65);
+  --selection-bg: rgba(142, 180, 232, 0.25);
+  --shadow: rgba(0, 0, 0, 0.3);
+  --code-bg: #1a1c24;
+  --error: #e06060;
 }
 
 /* ── Ripple canvas — sits behind everything ────────────── */
@@ -28,7 +56,7 @@
 
 /* ── Base ──────────────────────────────────────────────── */
 html, body {
-  background: var(--paper);
+  background: var(--paper) !important;
 }
 
 body {
@@ -36,26 +64,26 @@ body {
   font-weight: 300;
   font-size: 19px;
   line-height: 1.8;
-  color: var(--ink);
+  color: var(--ink) !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 /* All content sits above the canvas */
-.header, .main, .footer, .nav, #top-link, .post-single, .post-content {
+.header, .main, .footer, .nav, .post-single, .post-content {
   position: relative;
   z-index: 2;
 }
 
 /* Selection */
-::selection { background: rgba(142, 180, 232, 0.25); color: var(--ink); }
+::selection { background: var(--selection-bg); color: var(--ink); }
 
 /* ── Header ────────────────────────────────────────────── */
 .header {
-  background: rgba(10, 11, 15, 0.88);
+  background: var(--header-bg) !important;
   backdrop-filter: saturate(180%) blur(12px);
   -webkit-backdrop-filter: saturate(180%) blur(12px);
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule) !important;
   padding: 0 !important;
 }
 
@@ -81,7 +109,13 @@ body {
   width: auto;
   display: block;
   opacity: 0.92;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, filter 0.3s;
+}
+
+/* Logo: original is black strokes — invert for dark mode */
+[data-theme="dark"] .logo img,
+[data-theme="dark"] #logo img {
+  filter: invert(0.88) brightness(1.1);
 }
 
 .logo a:hover img { opacity: 1; }
@@ -93,6 +127,54 @@ body {
   font-size: 1.55rem;
   font-weight: 500;
   letter-spacing: 0.015em;
+  color: var(--ink);
+}
+
+/* ── Theme toggle — |0⟩ / |1⟩ quantum state ──────────── */
+#theme-toggle {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  background: transparent !important;
+  border: 1px solid var(--rule) !important;
+  border-radius: 4px;
+  padding: 4px 12px !important;
+  cursor: pointer;
+  transition: color 0.3s, border-color 0.3s, background 0.3s;
+  margin-left: 8px;
+  min-width: 0;
+  height: auto;
+}
+
+#theme-toggle:hover {
+  border-color: var(--ink-soft) !important;
+  background: var(--card-bg) !important;
+}
+
+/* Hide default PaperMod sun/moon SVGs */
+#theme-toggle svg,
+#theme-toggle #moon,
+#theme-toggle #sun {
+  display: none !important;
+}
+
+/* Physics-themed label */
+#theme-toggle::after {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: var(--ink-faint);
+  transition: color 0.3s;
+  /* Light mode = excited state */
+  content: '|1⟩';
+}
+
+[data-theme="dark"] #theme-toggle::after {
+  /* Dark mode = ground state */
+  content: '|0⟩';
+}
+
+#theme-toggle:hover::after {
   color: var(--ink);
 }
 
@@ -108,7 +190,7 @@ body {
   font-weight: 400;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ink-soft);
+  color: var(--ink-soft) !important;
   padding: 8px 14px;
   border-radius: 0;
   border-bottom: 1px solid transparent;
@@ -116,13 +198,13 @@ body {
 }
 
 .menu a:hover {
-  color: var(--ink);
-  background: transparent;
+  color: var(--ink) !important;
+  background: transparent !important;
   border-bottom-color: var(--ink);
 }
 
 .menu a.active {
-  color: var(--ink);
+  color: var(--ink) !important;
   border-bottom-color: var(--ink);
 }
 
@@ -179,12 +261,12 @@ body {
 }
 
 .social-icons a {
-  color: var(--ink-faint);
+  color: var(--ink-faint) !important;
   margin: 0 8px;
   transition: color 0.2s;
 }
 
-.social-icons a:hover { color: var(--ink); }
+.social-icons a:hover { color: var(--ink) !important; }
 .social-icons svg { width: 18px; height: 18px; }
 
 /* ── Main container ────────────────────────────────────── */
@@ -234,7 +316,7 @@ body {
 }
 
 .entry-header h2 a {
-  color: inherit;
+  color: inherit !important;
   text-decoration: none;
   background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
   transition: background-size 0.35s ease;
@@ -263,13 +345,19 @@ body {
   text-transform: uppercase;
 }
 
-/* ── Single post ───────────────────────────────────────── */
+/* ── Single post — frosted glass backdrop ─────────────── */
 .post-single {
-  padding: 24px 0 0;
+  background: var(--content-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 8px;
+  padding: 48px 44px 56px;
+  margin: -12px -12px 0;
+  border: 1px solid var(--rule);
 }
 
 .post-header {
-  margin: 24px 0 48px;
+  margin: 0 0 48px;
   padding-bottom: 24px;
   border-bottom: 1px solid var(--rule);
 }
@@ -327,7 +415,7 @@ body {
 }
 
 .post-content a {
-  color: var(--link);
+  color: var(--link) !important;
   text-decoration: none;
   background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat;
   padding-bottom: 1px;
@@ -356,7 +444,7 @@ body {
   display: block;
   margin: 32px auto;
   border-radius: 4px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 32px var(--shadow);
   max-width: 100%;
   height: auto;
 }
@@ -372,7 +460,7 @@ body {
 
 .post-content code {
   font-size: 0.9em;
-  background: var(--paper-warm);
+  background: var(--code-bg);
   padding: 2px 6px;
   border-radius: 3px;
   font-family: 'SF Mono', Menlo, monospace;
@@ -388,7 +476,61 @@ body {
 /* ── Math (MathJax) ────────────────────────────────────── */
 mjx-container { font-size: 1.1em !important; }
 
-/* ── PDF card ──────────────────────────────────────────── */
+/* ── PDF embed ────────────────────────────────────────── */
+.pdf-embed-container {
+  margin: 28px 0;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--card-bg);
+}
+
+.pdf-embed-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.pdf-embed-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pdf-embed-download {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 6px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.pdf-embed-download:hover {
+  color: var(--ink);
+  border-color: var(--ink-soft);
+}
+
+.pdf-embed-frame {
+  width: 100%;
+  height: 600px;
+  border: none;
+  display: block;
+}
+
+/* Legacy PDF card fallback */
 .pdf-card {
   display: flex;
   align-items: center;
@@ -397,7 +539,7 @@ mjx-container { font-size: 1.1em !important; }
   border: 1px solid var(--rule);
   border-radius: 4px;
   margin: 28px 0;
-  background: rgba(17, 18, 24, 0.6);
+  background: var(--card-bg);
   text-decoration: none !important;
   color: inherit;
   transition: border-color 0.25s, background 0.25s, transform 0.25s;
@@ -405,7 +547,6 @@ mjx-container { font-size: 1.1em !important; }
 
 .pdf-card:hover {
   border-color: var(--ink-faint);
-  background: rgba(17, 18, 24, 0.9);
   transform: translateX(2px);
   opacity: 1 !important;
 }
@@ -441,7 +582,7 @@ mjx-container { font-size: 1.1em !important; }
   margin: 36px 0;
   border-radius: 4px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 32px var(--shadow);
 }
 
 .youtube-embed iframe {
@@ -458,7 +599,7 @@ mjx-container { font-size: 1.1em !important; }
   padding: 56px 32px;
   text-align: center;
   margin: 48px 0;
-  background: rgba(17, 18, 24, 0.6);
+  background: var(--card-bg);
 }
 
 .protected-icon { font-size: 1.6rem; margin-bottom: 14px; opacity: 0.5; }
@@ -510,10 +651,10 @@ mjx-container { font-size: 1.1em !important; }
   transition: background 0.2s;
 }
 
-.protected-form button:hover { background: var(--accent); color: var(--paper); }
+.protected-form button:hover { background: var(--accent); }
 
 .protected-error {
-  color: #e06060;
+  color: var(--error);
   font-size: 0.78rem;
   margin-top: 14px;
   letter-spacing: 0.05em;
@@ -565,7 +706,7 @@ mjx-container { font-size: 1.1em !important; }
 .sim-card:hover {
   border-color: var(--ink-faint);
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 12px 40px var(--shadow);
   opacity: 1 !important;
 }
 
@@ -617,7 +758,129 @@ mjx-container { font-size: 1.1em !important; }
   letter-spacing: 0.06em;
 }
 
-/* ── About / Contact pages ─────────────────────────────── */
+/* ── Publications page ─────────────────────────────────── */
+.publications-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 50px 32px 80px;
+}
+
+.publications-page .page-heading {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(2.4rem, 5vw, 3.2rem);
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 10px;
+  letter-spacing: -0.01em;
+}
+
+.publications-intro {
+  color: var(--ink-faint);
+  font-size: 0.92rem;
+  letter-spacing: 0.06em;
+  margin-bottom: 44px;
+  max-width: 600px;
+  line-height: 1.7;
+}
+
+.pub-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pub-item {
+  padding: 28px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.pub-item:first-child {
+  padding-top: 0;
+}
+
+.pub-item:last-child {
+  border-bottom: none;
+}
+
+.pub-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.3;
+  margin-bottom: 8px;
+}
+
+.pub-title a {
+  color: inherit;
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: background-size 0.35s ease;
+}
+
+.pub-title a:hover {
+  background-size: 100% 1px;
+}
+
+.pub-authors {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 300;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+
+.pub-journal {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--ink-faint);
+  margin-bottom: 6px;
+}
+
+.pub-links {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.pub-link {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--link);
+  text-decoration: none;
+  padding: 4px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.pub-link:hover {
+  border-color: var(--link);
+}
+
+.pub-loading, .pub-empty {
+  color: var(--ink-faint);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.92rem;
+  font-style: italic;
+  padding: 40px 0;
+  letter-spacing: 0.04em;
+}
+
+/* ── About / Contact pages — also get frosted backdrop ── */
+.page .post-single {
+  background: var(--content-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 8px;
+  padding: 48px 44px 56px;
+  border: 1px solid var(--rule);
+}
+
 .page .post-title,
 .page-heading {
   font-family: 'Cormorant Garamond', Georgia, serif !important;
@@ -631,28 +894,33 @@ mjx-container { font-size: 1.1em !important; }
   display: none !important;
 }
 
+/* ── Go-to-top button — HIDDEN ────────────────────────── */
+#top-link {
+  display: none !important;
+}
+
 /* ── Footer ────────────────────────────────────────────── */
 .footer {
   font-family: 'Inter', sans-serif;
   font-size: 0.75rem;
   font-weight: 300;
-  color: var(--ink-faint);
-  border-top: 1px solid var(--rule);
+  color: var(--ink-faint) !important;
+  border-top: 1px solid var(--rule) !important;
   padding: 32px 24px;
   text-align: center;
   letter-spacing: 0.08em;
-  background: var(--paper);
+  background: var(--paper) !important;
 }
 
-.footer a { color: var(--ink-soft); }
-.footer a:hover { color: var(--ink); }
+.footer a { color: var(--ink-soft) !important; }
+.footer a:hover { color: var(--ink) !important; }
 
 /* ── Tags / Terms ──────────────────────────────────────── */
 .post-tags { margin-top: 32px; }
 
 .post-tags a {
   background: transparent;
-  color: var(--ink-faint);
+  color: var(--ink-faint) !important;
   border: 1px solid var(--rule);
   padding: 5px 12px;
   border-radius: 999px;
@@ -665,26 +933,23 @@ mjx-container { font-size: 1.1em !important; }
 
 .post-tags a:hover {
   border-color: var(--ink);
-  color: var(--ink);
+  color: var(--ink) !important;
 }
-
-/* ── Theme toggle / search hidden — keeps it minimal ──── */
-#theme-toggle, .lang-switch { display: none !important; }
 
 /* ── Table of Contents ─────────────────────────────────── */
 .toc {
   border: 1px solid var(--rule);
-  background: var(--paper-warm);
+  background: var(--card-bg);
   border-radius: 4px;
   padding: 16px 20px;
 }
 
 .toc a {
-  color: var(--ink-soft);
+  color: var(--ink-soft) !important;
   text-decoration: none;
 }
 
-.toc a:hover { color: var(--ink); }
+.toc a:hover { color: var(--ink) !important; }
 
 /* ── Mobile ────────────────────────────────────────────── */
 @media (max-width: 640px) {
@@ -698,24 +963,23 @@ mjx-container { font-size: 1.1em !important; }
   .entry-content { font-size: 0.95rem !important; }
   .post-content { font-size: 1.2rem !important; }
   body { font-size: 17px; }
+  .post-single {
+    padding: 28px 20px 36px;
+    margin: -8px -8px 0;
+    border-radius: 6px;
+  }
+  .pdf-embed-frame { height: 400px; }
+  #theme-toggle { padding: 3px 8px !important; }
+  #theme-toggle::after { font-size: 0.9rem; }
 }
 
-/* ── Override PaperMod dark/light — force dark ─────────── */
-body, .dark body, html[data-theme="dark"] body {
-  background: var(--paper) !important;
-  color: var(--ink) !important;
-}
+/* ── Remove PaperMod theme-overrides we don't want ─────── */
+.lang-switch { display: none !important; }
 
-.dark .header, html[data-theme="dark"] .header {
-  background: rgba(10, 11, 15, 0.88) !important;
-  border-bottom-color: var(--rule) !important;
-}
-
-.dark .post-entry, html[data-theme="dark"] .post-entry {
-  border-bottom-color: var(--rule) !important;
-}
-
-.dark .entry-header h2, .dark .post-title, .dark .logo-switches,
-html[data-theme="dark"] .entry-header h2 {
+/* Override any PaperMod color specifics */
+[data-theme="dark"] .entry-header h2,
+[data-theme="dark"] .post-title,
+[data-theme="dark"] .logo-switches,
+[data-theme="dark"] .entry-content {
   color: var(--ink) !important;
 }

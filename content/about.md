@@ -3,17 +3,16 @@ title: "About"
 layout: "page"
 url: "/about/"
 summary: "About Eren Erberk Erkul"
+ShowReadingTime: false
 ---
 
-I'm **Eren Erberk Erkul** — a physicist and engineer interested in general relativity, electromagnetic media, and the geometric foundations of physical theories.
+I'm **Eren Erberk Erkul**, a physicist and electrical & electronics engineer interested in general relativity, quantum field theory, and applied mathematics as a whole.
 
-This blog — **Effective Field** — is where I write about physics, technology, and ideas. The name is a nod to *effective field theory*: the physics framework for describing systems at a given scale without needing to know every detail of the underlying structure.
-
-The posts range from physics lectures and conference talks to thought experiments and broader intellectual essays.
+This website, **Effective Field**, presents my work in physics, technology, and thought experiments extending to various disciplines. The title is inspired by effective field theories in physics, which describe systems at a specific scale without requiring complete knowledge of the underlying structure.
 
 ---
 
 ## Find Me
 
-- [LinkedIn](https://www.linkedin.com/in/erenerberkerkul)
-- [YouTube](https://www.youtube.com/@erenerberkerkul)
+- [LinkedIn](https://www.linkedin.com/in/eren-erberk-erkul-60919b308)
+- [YouTube](https://www.youtube.com/@erenerberkerkul3049)

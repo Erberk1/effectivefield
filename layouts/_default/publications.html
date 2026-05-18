@@ -1,0 +1,84 @@
+{{- define "main" }}
+<div class="publications-page">
+  <h1 class="page-heading">Publications</h1>
+  <p class="publications-intro">Fetched in real time from <a href="https://inspirehep.net/authors/2960946" target="_blank" style="color:var(--link)">INSPIRE-HEP</a>.</p>
+
+  <div id="pub-container">
+    <p class="pub-loading">Loading publications...</p>
+  </div>
+</div>
+
+<script>
+(function() {
+  const container = document.getElementById('pub-container');
+  const API = 'https://inspirehep.net/api/literature?q=find+a+E.E.Erkul.1&sort=mostrecent&size=50';
+
+  fetch(API)
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      const hits = data.hits && data.hits.hits;
+      if (!hits || hits.length === 0) {
+        container.innerHTML = '<p class="pub-empty">No publications found yet. Check back soon.</p>';
+        return;
+      }
+
+      var html = '<ul class="pub-list">';
+      hits.forEach(function(item) {
+        var m = item.metadata || {};
+        var title = (m.titles && m.titles[0] && m.titles[0].title) || 'Untitled';
+        var authors = (m.authors || []).map(function(a) { return a.full_name; }).join(', ');
+        var year = '';
+        var journal = '';
+
+        // Extract publication info
+        if (m.publication_info && m.publication_info.length > 0) {
+          var pi = m.publication_info[0];
+          journal = pi.journal_title || '';
+          if (pi.journal_volume) journal += ' ' + pi.journal_volume;
+          if (pi.artid) journal += ', ' + pi.artid;
+          if (pi.year) year = pi.year;
+        }
+
+        // Fallback year from preprint_date
+        if (!year && m.preprint_date) {
+          year = m.preprint_date.substring(0, 4);
+        }
+        if (!year && m.legacy_creation_date) {
+          year = m.legacy_creation_date.substring(0, 4);
+        }
+
+        // Build links
+        var links = '';
+        var cn = m.control_number;
+        if (cn) {
+          links += '<a class="pub-link" href="https://inspirehep.net/literature/' + cn + '" target="_blank">INSPIRE</a>';
+        }
+        if (m.arxiv_eprints && m.arxiv_eprints.length > 0) {
+          var arxiv = m.arxiv_eprints[0].value;
+          links += '<a class="pub-link" href="https://arxiv.org/abs/' + arxiv + '" target="_blank">arXiv: ' + arxiv + '</a>';
+        }
+        if (m.dois && m.dois.length > 0) {
+          var doi = m.dois[0].value;
+          links += '<a class="pub-link" href="https://doi.org/' + doi + '" target="_blank">DOI</a>';
+        }
+
+        html += '<li class="pub-item">';
+        html += '<div class="pub-title">' + title + (year ? ' (' + year + ')' : '') + '</div>';
+        html += '<div class="pub-authors">' + authors + '</div>';
+        if (journal) {
+          html += '<div class="pub-journal">' + journal + '</div>';
+        }
+        if (links) {
+          html += '<div class="pub-links">' + links + '</div>';
+        }
+        html += '</li>';
+      });
+      html += '</ul>';
+      container.innerHTML = html;
+    })
+    .catch(function(err) {
+      container.innerHTML = '<p class="pub-empty">Could not load publications. <a href="https://inspirehep.net/authors/2960946" target="_blank" style="color:var(--link)">View on INSPIRE-HEP</a></p>';
+    });
+})();
+</script>
+{{- end }}
