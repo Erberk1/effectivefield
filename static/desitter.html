@@ -21,7 +21,7 @@
             letter-spacing: 0.06em; text-shadow: 0 0 20px rgba(100,140,255,0.3);
         }
         #header .sub {
-            margin-top: 5px; font-size: 0.82em; color: #667899;
+            margin-top: 5px; font-size: 0.82em; color: #8aa4c8;
             font-family: 'EB Garamond', serif;
         }
 
@@ -32,7 +32,7 @@
             backdrop-filter: blur(8px);
         }
         #sidebar h3 {
-            font-size: 0.72em; color: #5a6a8a; text-transform: uppercase;
+            font-size: 0.72em; color: #8a9ec0; text-transform: uppercase;
             letter-spacing: 0.12em; margin-bottom: 10px; font-weight: 400;
         }
         .pitem {
@@ -46,7 +46,7 @@
         .plabel { font-size: 0.88em; color: #b0bcd0; }
 
         #sidebar .divider { border: none; border-top: 1px solid rgba(60,80,140,0.15); margin: 11px 0; }
-        #sidebar .note { font-size: 0.72em; color: #3a4a66; line-height: 1.6; }
+        #sidebar .note { font-size: 0.72em; color: #9ab0cc; line-height: 1.6; }
 
         #info {
             position: fixed; top: 72px; right: 14px; width: 340px;
@@ -64,14 +64,14 @@
         }
         #ititle { font-size: 1.05em; font-weight: 600; color: #c0d4ff; }
         #iclose {
-            cursor: pointer; color: #3a4a66; font-size: 1.4em; line-height: 1;
+            cursor: pointer; color: #6a80a8; font-size: 1.4em; line-height: 1;
             width: 28px; height: 28px; display: flex; align-items: center;
             justify-content: center; border-radius: 50%; transition: all 0.2s;
         }
         #iclose:hover { color: #c0d4ff; background: rgba(100,140,255,0.1); }
 
         .elabel {
-            font-size: 0.7em; color: #5a6a8a; text-transform: uppercase;
+            font-size: 0.7em; color: #8a9ec0; text-transform: uppercase;
             letter-spacing: 0.1em; margin: 16px 0 6px; font-weight: 400;
         }
         .elabel:first-child { margin-top: 0; }
@@ -87,7 +87,7 @@
         .math-block .katex-display > .katex { text-align: left !important; }
 
         .desc {
-            font-size: 0.88em; line-height: 1.65; color: #8899bb; margin: 4px 0 8px;
+            font-size: 0.88em; line-height: 1.65; color: #a8b8d4; margin: 4px 0 8px;
         }
         .hl { color: #a0ccff; }
         em { color: #d4c090; font-style: italic; }
@@ -108,7 +108,7 @@
 
         #hint {
             position: fixed; bottom: 56px; left: 50%; transform: translateX(-50%);
-            color: #2a3550; font-size: 0.76em; text-align: center; pointer-events: none; white-space: nowrap;
+            color: #7a90b4; font-size: 0.76em; text-align: center; pointer-events: none; white-space: nowrap;
         }
 
         #tip {
@@ -120,7 +120,7 @@
 
         #credit {
             position: fixed; bottom: 18px; right: 18px; z-index: 10;
-            font-size: 0.72em; color: #2a3550; letter-spacing: 0.06em;
+            font-size: 0.72em; color: #c8a840; letter-spacing: 0.06em;
             font-style: italic;
         }
     </style>
@@ -640,9 +640,9 @@ function mkSprite(text, pos, col, sw) {
     s.position.set(...pos); s.scale.set(sw || 1.4, 0.32, 1);
     scene.add(s);
 }
-mkSprite('u → +∞  (ℐ⁺)', [0, 4.3, 0], '#7799bb', 1.8);
-mkSprite('u → −∞  (ℐ⁻)', [0, -4.3, 0], '#7799bb', 1.8);
-mkSprite('τ = 0  (throat)', [2, 0.22, 0.6], '#aabbcc', 1.7);
+mkSprite('u → +∞  (ℐ⁺)', [0, 4.3, 0], '#c8deff', 1.8);
+mkSprite('u → −∞  (ℐ⁻)', [0, -4.3, 0], '#c8deff', 1.8);
+mkSprite('τ = 0  (throat)', [2, 0.22, 0.6], '#e8eef8', 1.7);
 mkSprite('Poincaré', [0, 2.2, -1.8], '#dd8855', 1.2);
 mkSprite('Contracting', [0, -2.2, -1.8], '#bb77ee', 1.4);
 mkSprite('Static', [1.8, 0, 1], '#44bb77', 1.1);
