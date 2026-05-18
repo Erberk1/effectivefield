@@ -67,15 +67,20 @@ locale = "en-us"
     url = "/simulations/"
     weight = 4
   [[menu.main]]
+    identifier = "presentations"
+    name = "Presentations"
+    url = "/presentations/"
+    weight = 5
+  [[menu.main]]
     identifier = "about"
     name = "About"
     url = "/about/"
-    weight = 5
+    weight = 6
   [[menu.main]]
     identifier = "contact"
     name = "Contact"
     url = "/contact/"
-    weight = 6
+    weight = 7
 
 [markup]
   [markup.goldmark]

@@ -1,0 +1,10 @@
+<div class="pdf-embed-container">
+  <div class="pdf-embed-header">
+    <span class="pdf-embed-title">📊 {{ .Get "title" }}</span>
+    <a class="pdf-embed-download" href="{{ .Get "url" }}" target="_blank" download>Download</a>
+  </div>
+  <iframe class="pdf-embed-frame"
+    src="https://view.officeapps.live.com/op/embed.aspx?src=https://effectivefield.com{{ .Get "url" }}"
+    loading="lazy"
+    allowfullscreen></iframe>
+</div>
