@@ -3,6 +3,7 @@ title = "Effective Field"
 paginate = 10
 theme = "PaperMod"
 locale = "en-us"
+buildFuture = true
 
 [params]
   description = "Physics, technology, and ideas — by Eren Erberk Erkul."

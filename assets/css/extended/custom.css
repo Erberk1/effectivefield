@@ -190,6 +190,7 @@ nav.header-nav {
   font-size: 1.9rem;
   font-weight: 400;
   color: var(--ink);
+  letter-spacing: -0.08em;
   transition: opacity 0.3s;
   /* Light mode = excited state */
   content: '|1⟩';
