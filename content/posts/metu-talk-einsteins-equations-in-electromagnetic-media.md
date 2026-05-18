@@ -8,3 +8,9 @@ summary: "Talk given at METU on Einstein's field equations in the context of ele
 *Talk given at METU, December 3, 2025.*
 
 {{< pdf url="/pdfs/METU_Talk_Einstein_Equations.pdf" title="METU Talk — Einstein's Equations in Electromagnetic Media" >}}
+
+{{< youtube-embed lUu0CHwQTqY >}}
+
+{{< youtube-embed Iwgft9kYzhM >}}
+
+{{< youtube-embed XKVHG5LNof8 >}}

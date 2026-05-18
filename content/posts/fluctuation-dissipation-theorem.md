@@ -103,3 +103,7 @@ Photon absorption statistics follow binomial distributions, connecting the quant
 1. Einstein, A. (1905). *Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen.* Annalen der Physik, 17(8), 549–560.
 2. Lindblad, G. (1976). *On the generators of quantum dynamical semigroups.* Communications in Mathematical Physics, 48(2), 119–130.
 3. Leonhardt, U. (2010). *Essential Quantum Optics: From Quantum Measurements to Black Holes.* Cambridge University Press.
+
+---
+
+{{< youtube-embed 0YutBdX0oEY >}}

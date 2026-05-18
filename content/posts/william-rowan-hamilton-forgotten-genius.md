@@ -45,3 +45,11 @@ Revolutionary scientific breakthroughs emerge from emotional inspiration rather 
 - [Hamilton — St Andrews Mathematics](https://mathshistory.st-andrews.ac.uk/Biographies/Hamilton/)
 - [Hamilton — Royal Irish Academy](https://www.ria.ie)
 - [Quaternions — Wolfram MathWorld](https://mathworld.wolfram.com/Quaternion.html)
+
+---
+
+{{< youtube-embed zjMuIxRvygQ >}}
+
+{{< youtube-embed mHVwd8gYLnI >}}
+
+{{< youtube-embed SZXHoWwBcDc >}}

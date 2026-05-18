@@ -33,3 +33,7 @@ The physics agrees. In Minkowski spacetime, the causal structure is absolute. Yo
 ---
 
 Time is not a river we float along. It is the geometry of the universe itself — and geometry does not bend to wishes.
+
+---
+
+{{< youtube-embed YHhEFKsBQJc >}}
