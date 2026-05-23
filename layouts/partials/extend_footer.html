@@ -2,17 +2,31 @@
 
 <script>
 (function() {
-  const canvas = document.getElementById('ripple-canvas');
+  var canvas = document.getElementById('ripple-canvas');
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  let W = 0, H = 0, dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-  const ripples = [];
-  const particles = [];
-  let lastSpawn = 0;
-  let lastMouseSpawn = 0;
-  let frameCount = 0;
+  var ctx = canvas.getContext('2d', { alpha: true });
+  var W = 0, H = 0;
 
-  function resize() {
+  // Force DPR 1.0 — ripples are abstract, retina resolution is wasted GPU
+  var dpr = 1;
+
+  // Pre-allocated pools — no splice(), no GC pressure
+  var MAX_RIPPLES = 30;
+  var MAX_PARTICLES = 50;
+  var rPool = new Array(MAX_RIPPLES);
+  var pPool = new Array(MAX_PARTICLES);
+  var rCount = 0, pCount = 0;
+
+  var lastSpawn = 0, lastMouseSpawn = 0;
+  var frameCount = 0;
+  var lastFrameTime = 0;
+  var TARGET_DT = 1000 / 30; // 30fps target for ambient animation
+  var isInteracting = false;
+  var interactTimeout = 0;
+
+  // ── Resize (debounced) ────────────────────────────────
+  var resizeTimer = 0;
+  function doResize() {
     W = window.innerWidth;
     H = window.innerHeight;
     canvas.width = W * dpr;
@@ -21,222 +35,224 @@
     canvas.style.height = H + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
-  resize();
-  window.addEventListener('resize', resize);
+  doResize();
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(doResize, 150);
+  });
 
-  // Theme-adaptive colors — cached, only recalculated on theme change
-  var _cachedColors = null;
-  var _cachedTheme = null;
-  function getColors() {
+  // ── Colors — cached, pre-built RGBA strings ──────────
+  var cWave = '', cInner = '', cGlow = '', cPart = '', cPartG = '';
+  var cWaveArr, cInnerArr, cGlowArr, cPartArr, cPartGArr;
+  var _theme = null;
+  function refreshColors() {
     var theme = document.documentElement.dataset.theme || 'light';
-    if (theme === _cachedTheme && _cachedColors) return _cachedColors;
-    _cachedTheme = theme;
-    _cachedColors = theme === 'dark' ? {
-      wave: [80, 130, 180],
-      waveInner: [100, 150, 200],
-      waveGlow: [60, 110, 160],
-      particle: [120, 200, 190],
-      particleGlow: [100, 180, 170]
-    } : {
-      wave: [40, 70, 140],
-      waveInner: [60, 90, 160],
-      waveGlow: [30, 60, 130],
-      particle: [20, 130, 120],
-      particleGlow: [15, 110, 100]
-    };
-    return _cachedColors;
+    if (theme === _theme) return;
+    _theme = theme;
+    if (theme === 'dark') {
+      cWaveArr = '80,130,180'; cInnerArr = '100,150,200'; cGlowArr = '60,110,160';
+      cPartArr = '120,200,190'; cPartGArr = '100,180,170';
+    } else {
+      cWaveArr = '40,70,140'; cInnerArr = '60,90,160'; cGlowArr = '30,60,130';
+      cPartArr = '20,130,120'; cPartGArr = '15,110,100';
+    }
   }
+  refreshColors();
 
-  function spawnRipple(x, y, opts) {
-    opts = opts || {};
-    ripples.push({
-      x: x,
-      y: y,
-      radius: 0,
-      maxRadius: opts.maxRadius || (140 + Math.random() * 200),
-      speed: opts.speed || (0.5 + Math.random() * 0.4),
-      width: opts.width || (1.0 + Math.random() * 0.8),
-      opacity: opts.opacity || 0.45,
-      born: performance.now()
-    });
+  // ── Object creation ──────────────────────────────────
+  function spawnRipple(x, y, maxR, spd, w, op) {
+    if (rCount >= MAX_RIPPLES) return;
+    rPool[rCount++] = { x:x, y:y, radius:0, maxRadius:maxR, speed:spd, width:w, opacity:op };
   }
 
   function spawnParticle(x, y) {
-    particles.push({
-      x: x,
-      y: y,
+    if (pCount >= MAX_PARTICLES) return;
+    pPool[pCount++] = {
+      x:x, y:y,
       vx: (Math.random() - 0.5) * 0.6,
       vy: (Math.random() - 0.5) * 0.6,
       life: 1.0,
       decay: 0.006 + Math.random() * 0.008,
       size: 1.5 + Math.random() * 2.5
-    });
+    };
   }
 
-  // Ambient ripples — always multiple visible
+  // ── Ambient + seed ───────────────────────────────────
   function ambientSpawn(now) {
-    if (now - lastSpawn > 900 + Math.random() * 900) {
+    if (now - lastSpawn > 1200 + Math.random() * 800) {
       lastSpawn = now;
       spawnRipple(
-        Math.random() * W,
-        Math.random() * H,
-        { maxRadius: 180 + Math.random() * 260, opacity: 0.38, speed: 0.4 + Math.random() * 0.3 }
+        Math.random() * W, Math.random() * H,
+        180 + Math.random() * 260, 0.4 + Math.random() * 0.3,
+        1.0 + Math.random() * 0.8, 0.38
       );
     }
   }
 
-  // Seed initial ripples
-  function seedRipples() {
-    for (var i = 0; i < 6; i++) {
-      spawnRipple(
-        Math.random() * W,
-        Math.random() * H,
-        { maxRadius: 180 + Math.random() * 260, opacity: 0.35, speed: 0.35 + Math.random() * 0.35 }
-      );
-      ripples[ripples.length - 1].radius = Math.random() * ripples[ripples.length - 1].maxRadius * 0.7;
-    }
+  // Seed 5 initial ripples at random progress
+  for (var si = 0; si < 5; si++) {
+    spawnRipple(
+      Math.random() * W, Math.random() * H,
+      180 + Math.random() * 260, 0.35 + Math.random() * 0.35,
+      1.0 + Math.random() * 0.8, 0.35
+    );
+    rPool[rCount - 1].radius = Math.random() * rPool[rCount - 1].maxRadius * 0.7;
   }
-  seedRipples();
 
-  // Mouse-driven ripples
+  // ── Interaction events ───────────────────────────────
+  function markInteracting() {
+    isInteracting = true;
+    clearTimeout(interactTimeout);
+    interactTimeout = setTimeout(function() { isInteracting = false; }, 1500);
+  }
+
   window.addEventListener('mousemove', function(e) {
     var now = performance.now();
-    if (now - lastMouseSpawn > 200) {
+    if (now - lastMouseSpawn > 250) {
       lastMouseSpawn = now;
-      spawnRipple(e.clientX, e.clientY, {
-        maxRadius: 90 + Math.random() * 80,
-        speed: 0.8 + Math.random() * 0.3,
-        width: 1.2,
-        opacity: 0.5
-      });
+      markInteracting();
+      spawnRipple(e.clientX, e.clientY,
+        90 + Math.random() * 80, 0.8 + Math.random() * 0.3, 1.2, 0.5);
     }
   });
 
-  // Touch support
   window.addEventListener('touchmove', function(e) {
     var touch = e.touches[0];
     var now = performance.now();
-    if (now - lastMouseSpawn > 100) {
+    if (now - lastMouseSpawn > 280) {
       lastMouseSpawn = now;
-      spawnRipple(touch.clientX, touch.clientY, {
-        maxRadius: 100 + Math.random() * 80,
-        speed: 0.9,
-        width: 1.4,
-        opacity: 0.55
-      });
+      markInteracting();
+      spawnRipple(touch.clientX, touch.clientY,
+        100 + Math.random() * 80, 0.9, 1.4, 0.55);
     }
   }, { passive: true });
 
-  // Click/tap splash
   window.addEventListener('click', function(e) {
     if (e.target.closest('a, button, input, textarea, select, [role="button"]')) return;
-    spawnRipple(e.clientX, e.clientY, {
-      maxRadius: 300, speed: 1.5, width: 2.0, opacity: 0.6
-    });
-    spawnRipple(e.clientX, e.clientY, {
-      maxRadius: 200, speed: 1.0, width: 1.4, opacity: 0.45
-    });
-    for (var i = 0; i < 12; i++) {
+    markInteracting();
+    spawnRipple(e.clientX, e.clientY, 300, 1.5, 2.0, 0.6);
+    spawnRipple(e.clientX, e.clientY, 200, 1.0, 1.4, 0.45);
+    for (var i = 0; i < 8; i++) {
       spawnParticle(e.clientX + (Math.random() - 0.5) * 20, e.clientY + (Math.random() - 0.5) * 20);
     }
   });
 
-  // Interference particle spawning
+  // ── Interference (lightweight) ───────────────────────
   function checkInterference() {
-    for (var i = 0; i < ripples.length; i++) {
-      for (var j = i + 1; j < ripples.length; j++) {
-        var r1 = ripples[i], r2 = ripples[j];
+    var len = Math.min(rCount, 15); // cap pairs checked
+    for (var i = 0; i < len; i++) {
+      for (var j = i + 1; j < len; j++) {
+        var r1 = rPool[i], r2 = rPool[j];
         var dx = r2.x - r1.x, dy = r2.y - r1.y;
-        var dist = Math.sqrt(dx * dx + dy * dy);
+        var distSq = dx * dx + dy * dy;
         var sumR = r1.radius + r2.radius;
-        var diffR = Math.abs(r1.radius - r2.radius);
+        if (distSq >= sumR * sumR) continue;
+        var diffR = r1.radius - r2.radius;
+        if (distSq <= diffR * diffR) continue;
 
-        if (dist < sumR && dist > diffR && dist > 0) {
-          var t1 = r1.radius / r1.maxRadius;
-          var t2 = r2.radius / r2.maxRadius;
-          if (t1 > 0.1 && t1 < 0.85 && t2 > 0.1 && t2 < 0.85) {
-            if (Math.random() < 0.04) {
-              var a = (r1.radius * r1.radius - r2.radius * r2.radius + dist * dist) / (2 * dist);
-              var h = Math.sqrt(Math.max(0, r1.radius * r1.radius - a * a));
-              var px = r1.x + a * (dx / dist);
-              var py = r1.y + a * (dy / dist);
-              spawnParticle(px + h * (-dy / dist), py + h * (dx / dist));
-              if (Math.random() < 0.5) {
-                spawnParticle(px - h * (-dy / dist), py - h * (dx / dist));
-              }
-            }
+        var t1 = r1.radius / r1.maxRadius;
+        var t2 = r2.radius / r2.maxRadius;
+        if (t1 > 0.1 && t1 < 0.85 && t2 > 0.1 && t2 < 0.85 && Math.random() < 0.03) {
+          var dist = Math.sqrt(distSq);
+          var a = (r1.radius * r1.radius - r2.radius * r2.radius + distSq) / (2 * dist);
+          var hSq = r1.radius * r1.radius - a * a;
+          if (hSq > 0) {
+            var h = Math.sqrt(hSq);
+            var invD = 1 / dist;
+            var px = r1.x + a * dx * invD;
+            var py = r1.y + a * dy * invD;
+            spawnParticle(px + h * (-dy * invD), py + h * (dx * invD));
           }
         }
       }
     }
   }
 
+  // ── Swap-remove from pool (O(1) instead of O(n) splice) ──
+  function removeRipple(i) { rPool[i] = rPool[--rCount]; }
+  function removeParticle(i) { pPool[i] = pPool[--pCount]; }
+
+  // ── Main loop ────────────────────────────────────────
   function frame(now) {
+    requestAnimationFrame(frame);
+
+    // Adaptive framerate: 30fps ambient, ~45fps when interacting
+    var targetDt = isInteracting ? 22 : TARGET_DT;
+    if (now - lastFrameTime < targetDt) return;
+    lastFrameTime = now;
+
     frameCount++;
     ambientSpawn(now);
+    refreshColors();
     ctx.clearRect(0, 0, W, H);
-    var c = getColors();
 
-    // Draw ripples
-    for (var i = ripples.length - 1; i >= 0; i--) {
-      var r = ripples[i];
+    // ── Draw ripples ──
+    var i, r, t, alpha;
+    for (i = rCount - 1; i >= 0; i--) {
+      r = rPool[i];
       r.radius += r.speed;
-      var t = r.radius / r.maxRadius;
-      if (t >= 1) { ripples.splice(i, 1); continue; }
-      var fadeIn = Math.min(1, t * 5);
-      var fadeOut = 1 - t;
-      var alpha = r.opacity * fadeIn * fadeOut;
+      t = r.radius / r.maxRadius;
+      if (t >= 1) { removeRipple(i); continue; }
 
+      // Skip if fully offscreen
+      if (r.x + r.radius < -10 || r.x - r.radius > W + 10 ||
+          r.y + r.radius < -10 || r.y - r.radius > H + 10) continue;
+
+      var fadeIn = t < 0.2 ? t * 5 : 1;
+      alpha = r.opacity * fadeIn * (1 - t);
+
+      // Primary ring
       ctx.beginPath();
-      ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(' + c.wave.join(',') + ',' + alpha + ')';
+      ctx.arc(r.x, r.y, r.radius, 0, 6.2832);
+      ctx.strokeStyle = 'rgba(' + cWaveArr + ',' + alpha + ')';
       ctx.lineWidth = r.width;
       ctx.stroke();
 
-      if (r.radius > 12) {
+      // Inner ring (skip when barely visible)
+      if (r.radius > 14 && alpha > 0.08) {
         ctx.beginPath();
-        ctx.arc(r.x, r.y, r.radius - 7, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(' + c.waveInner.join(',') + ',' + (alpha * 0.45) + ')';
+        ctx.arc(r.x, r.y, r.radius - 7, 0, 6.2832);
+        ctx.strokeStyle = 'rgba(' + cInnerArr + ',' + (alpha * 0.45) + ')';
         ctx.lineWidth = r.width * 0.5;
         ctx.stroke();
       }
 
-      if (r.radius > 20 && alpha > 0.15) {
+      // Glow ring (skip when barely visible)
+      if (r.radius > 24 && alpha > 0.18) {
         ctx.beginPath();
-        ctx.arc(r.x, r.y, r.radius + 4, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(' + c.waveGlow.join(',') + ',' + (alpha * 0.2) + ')';
+        ctx.arc(r.x, r.y, r.radius + 4, 0, 6.2832);
+        ctx.strokeStyle = 'rgba(' + cGlowArr + ',' + (alpha * 0.2) + ')';
         ctx.lineWidth = r.width * 2.5;
         ctx.stroke();
       }
     }
 
-    // Only run O(n²) interference check every 4th frame
-    if (frameCount % 4 === 0) checkInterference();
+    // Interference — every 8th frame (~4x/sec at 30fps)
+    if (frameCount % 8 === 0) checkInterference();
 
-    // Draw particles
-    for (var i = particles.length - 1; i >= 0; i--) {
-      var p = particles[i];
+    // ── Draw particles ──
+    var p, pa;
+    for (i = pCount - 1; i >= 0; i--) {
+      p = pPool[i];
       p.x += p.vx;
       p.y += p.vy;
       p.life -= p.decay;
-      if (p.life <= 0) { particles.splice(i, 1); continue; }
-      var pa = p.life * 0.7;
+      if (p.life <= 0) { removeParticle(i); continue; }
+      pa = p.life * 0.7;
 
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(' + c.particle.join(',') + ',' + pa + ')';
+      ctx.arc(p.x, p.y, p.size, 0, 6.2832);
+      ctx.fillStyle = 'rgba(' + cPartArr + ',' + pa + ')';
       ctx.fill();
 
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size + 2, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(' + c.particleGlow.join(',') + ',' + (pa * 0.25) + ')';
-      ctx.fill();
+      // Glow — only when still bright enough to matter
+      if (pa > 0.2) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size + 2, 0, 6.2832);
+        ctx.fillStyle = 'rgba(' + cPartGArr + ',' + (pa * 0.25) + ')';
+        ctx.fill();
+      }
     }
-
-    if (ripples.length > 40) ripples.splice(0, ripples.length - 40);
-    if (particles.length > 80) particles.splice(0, particles.length - 80);
-
-    requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 })();

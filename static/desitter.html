@@ -214,7 +214,11 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x060612);
 
 const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.05, 200);
-camera.position.set(10, 2.5, 10);
+
+// Adapt camera distance to screen — smaller screens pull back further
+var aspect = innerWidth / innerHeight;
+var baseDist = aspect < 1 ? 14 : aspect < 1.4 ? 12 : 10;
+camera.position.set(baseDist, baseDist * 0.25, baseDist);
 
 const ctrl = new THREE.OrbitControls(camera, renderer.domElement);
 ctrl.enableDamping = true;
@@ -752,6 +756,7 @@ window.addEventListener('resize', () => {
     camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(innerWidth, innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 });
 
 const clock = new THREE.Clock();
