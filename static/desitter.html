@@ -25,11 +25,37 @@
             font-family: 'EB Garamond', serif;
         }
 
+        #sidebar-toggle {
+            display: none;
+            position: fixed; top: 14px; left: 14px; z-index: 20;
+            background: rgba(8,8,24,0.92); border: 1px solid rgba(60,80,140,0.25);
+            border-radius: 8px; padding: 8px 12px; cursor: pointer;
+            color: #a0bcd0; font-size: 1.1em; backdrop-filter: blur(8px);
+            transition: background 0.2s;
+        }
+        #sidebar-toggle:hover { background: rgba(20,20,50,0.95); }
+
         #sidebar {
             position: fixed; top: 72px; left: 14px; width: 210px;
             background: rgba(8,8,24,0.92); border: 1px solid rgba(60,80,140,0.2);
             border-radius: 10px; padding: 14px 12px; z-index: 10;
             backdrop-filter: blur(8px);
+            transition: transform 0.3s ease;
+        }
+        #sidebar.collapsed { transform: translateX(-240px); }
+
+        @media (max-width: 860px) {
+            #sidebar-toggle { display: block; }
+            #sidebar { transform: translateX(-240px); top: 52px; }
+            #sidebar.open { transform: translateX(0); }
+            #header { padding: 8px 20px 12px; }
+            #header h1 { font-size: 1.1em; }
+        }
+        @media (max-width: 600px) {
+            #info { width: calc(100vw - 28px); right: 14px; left: 14px; }
+            #bar { gap: 4px; }
+            .btn { padding: 6px 9px; font-size: 0.74em; }
+            #hint { display: none; }
         }
         #sidebar h3 {
             font-size: 0.72em; color: #8a9ec0; text-transform: uppercase;
@@ -132,6 +158,8 @@
     <div class="sub" id="header-eq"></div>
 </div>
 
+<button id="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">☰</button>
+
 <div id="sidebar">
     <h3>Coordinate Patches</h3>
     <div class="pitem" id="pi-global" onclick="selectPatch('global')">
@@ -215,10 +243,17 @@ scene.background = new THREE.Color(0x060612);
 
 const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.05, 200);
 
-// Adapt camera distance to screen — smaller screens pull back further
-var aspect = innerWidth / innerHeight;
-var baseDist = aspect < 1 ? 14 : aspect < 1.4 ? 12 : 10;
-camera.position.set(baseDist, baseDist * 0.25, baseDist);
+// Scene bounding sphere ≈ 5.8 units (labels at ±4.3 in Y).
+// For the shape to fill ~55% of the vertical FOV (comfortable margins):
+//   d = 5.8 / tan(FOV/2 * 0.55) = 5.8 / tan(13.75°) ≈ 23.7
+// Pull back further on narrow/portrait screens.
+function getInitialCamPos() {
+    var a = innerWidth / innerHeight;
+    var d = a < 0.75 ? 22 : a < 1.1 ? 20 : a < 1.5 ? 18 : 16;
+    return new THREE.Vector3(d, d * 0.12, d);
+}
+var _initPos = getInitialCamPos();
+camera.position.copy(_initPos);
 
 const ctrl = new THREE.OrbitControls(camera, renderer.domElement);
 ctrl.enableDamping = true;
@@ -725,7 +760,12 @@ function closePanel() {
     diskTop.material.opacity = 0.7; diskBot.material.opacity = 0.7;
 }
 
-function resetView() { closePanel(); tweenTo(new THREE.Vector3(5, 1.8, 5), new THREE.Vector3(0,0,0)); }
+function resetView() { closePanel(); tweenTo(getInitialCamPos(), new THREE.Vector3(0,0,0)); }
+function toggleSidebar() {
+    var sb = document.getElementById('sidebar');
+    sb.classList.toggle('open');
+    sb.classList.toggle('collapsed');
+}
 function toggleWire() {
     wireMesh.visible = !wireMesh.visible;
     document.getElementById('btn-wire').classList.toggle('active');
@@ -757,6 +797,12 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(innerWidth, innerHeight);
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    // If no patch is selected (free view) and camera is near initial pos,
+    // gently update to the new screen-appropriate distance
+    if (!selected && !tween) {
+        var newPos = getInitialCamPos();
+        tweenTo(newPos, ctrl.target.clone());
+    }
 });
 
 const clock = new THREE.Clock();
