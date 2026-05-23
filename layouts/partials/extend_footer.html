@@ -5,11 +5,12 @@
   const canvas = document.getElementById('ripple-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  let W = 0, H = 0, dpr = window.devicePixelRatio || 1;
+  let W = 0, H = 0, dpr = Math.min(window.devicePixelRatio || 1, 1.5);
   const ripples = [];
   const particles = [];
   let lastSpawn = 0;
   let lastMouseSpawn = 0;
+  let frameCount = 0;
 
   function resize() {
     W = window.innerWidth;
@@ -23,10 +24,14 @@
   resize();
   window.addEventListener('resize', resize);
 
-  // Theme-adaptive colors
+  // Theme-adaptive colors — cached, only recalculated on theme change
+  var _cachedColors = null;
+  var _cachedTheme = null;
   function getColors() {
-    var dark = document.documentElement.dataset.theme === 'dark';
-    return dark ? {
+    var theme = document.documentElement.dataset.theme || 'light';
+    if (theme === _cachedTheme && _cachedColors) return _cachedColors;
+    _cachedTheme = theme;
+    _cachedColors = theme === 'dark' ? {
       wave: [80, 130, 180],
       waveInner: [100, 150, 200],
       waveGlow: [60, 110, 160],
@@ -39,6 +44,7 @@
       particle: [20, 130, 120],
       particleGlow: [15, 110, 100]
     };
+    return _cachedColors;
   }
 
   function spawnRipple(x, y, opts) {
@@ -69,7 +75,7 @@
 
   // Ambient ripples — always multiple visible
   function ambientSpawn(now) {
-    if (now - lastSpawn > 600 + Math.random() * 800) {
+    if (now - lastSpawn > 900 + Math.random() * 900) {
       lastSpawn = now;
       spawnRipple(
         Math.random() * W,
@@ -81,7 +87,7 @@
 
   // Seed initial ripples
   function seedRipples() {
-    for (var i = 0; i < 8; i++) {
+    for (var i = 0; i < 6; i++) {
       spawnRipple(
         Math.random() * W,
         Math.random() * H,
@@ -95,7 +101,7 @@
   // Mouse-driven ripples
   window.addEventListener('mousemove', function(e) {
     var now = performance.now();
-    if (now - lastMouseSpawn > 120) {
+    if (now - lastMouseSpawn > 200) {
       lastMouseSpawn = now;
       spawnRipple(e.clientX, e.clientY, {
         maxRadius: 90 + Math.random() * 80,
@@ -166,6 +172,7 @@
   }
 
   function frame(now) {
+    frameCount++;
     ambientSpawn(now);
     ctx.clearRect(0, 0, W, H);
     var c = getColors();
@@ -203,7 +210,8 @@
       }
     }
 
-    checkInterference();
+    // Only run O(n²) interference check every 4th frame
+    if (frameCount % 4 === 0) checkInterference();
 
     // Draw particles
     for (var i = particles.length - 1; i >= 0; i--) {
@@ -225,8 +233,8 @@
       ctx.fill();
     }
 
-    if (ripples.length > 60) ripples.splice(0, ripples.length - 60);
-    if (particles.length > 200) particles.splice(0, particles.length - 200);
+    if (ripples.length > 40) ripples.splice(0, ripples.length - 40);
+    if (particles.length > 80) particles.splice(0, particles.length - 80);
 
     requestAnimationFrame(frame);
   }

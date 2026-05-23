@@ -214,13 +214,14 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x060612);
 
 const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.05, 200);
-camera.position.set(5, 1.8, 5);
+camera.position.set(10, 2.5, 10);
 
 const ctrl = new THREE.OrbitControls(camera, renderer.domElement);
 ctrl.enableDamping = true;
 ctrl.dampingFactor = 0.07;
-ctrl.minDistance = 1.8;
-ctrl.maxDistance = 25;
+ctrl.minDistance = 2.5;
+ctrl.maxDistance = 40;
+ctrl.enableZoom = true;
 
 scene.add(new THREE.AmbientLight(0x223355, 1.6));
 const dl1 = new THREE.DirectionalLight(0x8899cc, 1.0); dl1.position.set(6, 8, 6); scene.add(dl1);
