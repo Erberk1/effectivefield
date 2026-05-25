@@ -209,7 +209,7 @@
     <button class="btn" id="btn-bounds" onclick="toggleBoundary()">Boundaries</button>
 </div>
 
-<div id="hint">Click regions or sidebar to explore &nbsp;&middot;&nbsp; Drag to rotate &nbsp;&middot;&nbsp; Scroll to zoom</div>
+<div id="hint">Click regions to explore &nbsp;&middot;&nbsp; Drag to rotate &nbsp;&middot;&nbsp; Arrow keys to pan &nbsp;&middot;&nbsp; Scroll to zoom</div>
 
 <div id="credit">Designed by EEE</div>
 
@@ -243,17 +243,16 @@ scene.background = new THREE.Color(0x060612);
 
 const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.05, 200);
 
-// Scene bounding sphere ≈ 5.8 units (labels at ±4.3 in Y).
-// For the shape to fill ~55% of the vertical FOV (comfortable margins):
-//   d = 5.8 / tan(FOV/2 * 0.55) = 5.8 / tan(13.75°) ≈ 23.7
-// Pull back further on narrow/portrait screens.
+// Camera positioned to fill ~60-70% of viewport on laptop screens
 function getInitialCamPos() {
     var a = innerWidth / innerHeight;
-    var d = a < 0.75 ? 22 : a < 1.1 ? 20 : a < 1.5 ? 18 : 16;
-    return new THREE.Vector3(d, d * 0.12, d);
+    var d = a < 0.8 ? 13.5 : a < 1.2 ? 12.8 : a < 1.6 ? 12.2 : 11.5;
+    // Slight Y elevation so the 3D structure is visible without biasing top/bottom
+    return new THREE.Vector3(d * 0.75, d * 0.18, d * 0.75);
 }
 var _initPos = getInitialCamPos();
 camera.position.copy(_initPos);
+camera.lookAt(0, 0, 0);
 
 const ctrl = new THREE.OrbitControls(camera, renderer.domElement);
 ctrl.enableDamping = true;
@@ -261,6 +260,9 @@ ctrl.dampingFactor = 0.07;
 ctrl.minDistance = 2.5;
 ctrl.maxDistance = 40;
 ctrl.enableZoom = true;
+ctrl.enablePan = true;
+ctrl.screenSpacePanning = true;
+ctrl.panSpeed = 1.2;
 
 scene.add(new THREE.AmbientLight(0x223355, 1.6));
 const dl1 = new THREE.DirectionalLight(0x8899cc, 1.0); dl1.position.set(6, 8, 6); scene.add(dl1);
@@ -784,6 +786,47 @@ function toggleBoundary() {
     document.getElementById('btn-bounds').classList.toggle('active');
 }
 
+// ── Arrow-key panning ────────────────────────────────────────────────────────
+var keysDown = {};
+var _panRight = new THREE.Vector3();
+var _panUp    = new THREE.Vector3();
+var _panOffset = new THREE.Vector3();
+
+window.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' ||
+        e.key === 'ArrowUp'   || e.key === 'ArrowDown') {
+        keysDown[e.key] = true;
+        e.preventDefault();   // stop page scrolling
+    }
+});
+window.addEventListener('keyup', function(e) {
+    keysDown[e.key] = false;
+});
+
+function applyKeyPan() {
+    var dx = 0, dy = 0;
+    if (keysDown['ArrowLeft'])  dx = -1;
+    if (keysDown['ArrowRight']) dx =  1;
+    if (keysDown['ArrowUp'])    dy =  1;
+    if (keysDown['ArrowDown'])  dy = -1;
+    if (dx === 0 && dy === 0) return;
+
+    // Pan speed scales with distance from target so far objects don't crawl
+    var dist = camera.position.distanceTo(ctrl.target);
+    var step = dist * 0.012;
+
+    // Use camera's local right and up axes for screen-space panning
+    _panRight.setFromMatrixColumn(camera.matrix, 0);
+    _panUp.setFromMatrixColumn(camera.matrix, 1);
+
+    _panOffset.set(0, 0, 0)
+        .addScaledVector(_panRight, dx * step)
+        .addScaledVector(_panUp,    dy * step);
+
+    camera.position.add(_panOffset);
+    ctrl.target.add(_panOffset);
+}
+
 function applyHover() {
     if (selected) return;
     for (const [id, m] of Object.entries(meshMap)) m.material.opacity = id === hovered ? 0.56 : 0.36;
@@ -811,6 +854,7 @@ const clock = new THREE.Clock();
     const dt = clock.getDelta();
     ctrl.autoRotate = spinning && !tween;
     ctrl.autoRotateSpeed = 0.5;
+    applyKeyPan();   // arrow keys move the manifold before controls update
     ctrl.update();
 
     if (tween) {
