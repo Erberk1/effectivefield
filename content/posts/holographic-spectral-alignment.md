@@ -13,8 +13,6 @@ summary: "🥇 1st Place — METU Engineering Day 3MT, plus the full PHYS400 pos
 
 ## Poster & Long Presentation
 
-*The full PHYS400 poster and long-form presentation of the Holographic Spectral Alignment project.*
-
 {{< pdf url="/pdfs/HSA_poster.pdf" title="Holographic Spectral Alignment — Poster" >}}
 
 {{< pptx url="/pptx/HSA_METU_Phys400_presentation.pptx" title="Holographic Spectral Alignment — Long Presentation (PHYS400)" >}}
