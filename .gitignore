@@ -2,3 +2,7 @@ public/
 resources/
 .hugo_build.lock
 .DS_Store
+
+# Never commit plaintext private materials — only their encrypted .enc form is published
+static/pdfs/HolographicSpectralAlignment.pdf
+static/pdfs/Statement_MuratTemiz.pdf

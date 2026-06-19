@@ -1,0 +1,103 @@
+{{- /* Client-side AES-256-GCM decryption gate.
+     Files are served as ciphertext (.enc); the passphrase never leaves the browser
+     and the plaintext is reconstructed only in memory via WebCrypto.
+     Usage:
+       {{< securefiles files="FileA.enc::Title A||FileB.enc::Title B" >}}
+*/ -}}
+{{- $files := split (.Get "files") "||" -}}
+<div class="secure-vault" data-iters="250000">
+  <div class="protected-gate" data-sv-gate>
+    <div class="protected-icon">🔒</div>
+    <p class="protected-label">Encrypted materials — enter passphrase to decrypt</p>
+    <div class="protected-form">
+      <input type="password" class="sv-input" placeholder="Enter passphrase" autocomplete="current-password" />
+      <button type="button" class="sv-btn">Decrypt</button>
+    </div>
+    <p class="protected-error sv-error" style="display:none;"></p>
+  </div>
+  <div class="sv-files" style="display:none;">
+    {{- range $files -}}
+      {{- $p := split . "::" -}}
+      <div class="sv-file" data-src="/pdfs/{{ index $p 0 }}">
+        <span class="sv-file-title">📄 {{ index $p 1 }}</span>
+        <span class="sv-file-actions"><span class="sv-file-status">Locked</span></span>
+      </div>
+    {{- end -}}
+  </div>
+</div>
+<script>
+(function () {
+  var vault = document.currentScript.previousElementSibling;
+  if (!vault || !vault.classList.contains('secure-vault')) {
+    vault = document.currentScript.parentElement.querySelector('.secure-vault');
+  }
+  var iters = parseInt(vault.getAttribute('data-iters'), 10) || 250000;
+  var gate = vault.querySelector('[data-sv-gate]');
+  var input = vault.querySelector('.sv-input');
+  var btn = vault.querySelector('.sv-btn');
+  var errEl = vault.querySelector('.sv-error');
+  var filesWrap = vault.querySelector('.sv-files');
+  var fileEls = Array.prototype.slice.call(vault.querySelectorAll('.sv-file'));
+
+  function showErr(msg) { errEl.textContent = msg; errEl.style.display = 'block'; }
+  function clearErr() { errEl.style.display = 'none'; }
+
+  function pdfName(src) {
+    var base = src.split('/').pop().replace(/\.enc$/i, '');
+    return /\.pdf$/i.test(base) ? base : base + '.pdf';
+  }
+
+  async function deriveKey(pass, salt) {
+    var enc = new TextEncoder();
+    var base = await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt: salt, iterations: iters, hash: 'SHA-256' },
+      base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
+    );
+  }
+
+  async function decryptOne(el, pass) {
+    var src = el.getAttribute('data-src');
+    var resp = await fetch(src);
+    if (!resp.ok) throw new Error('fetch failed: ' + resp.status);
+    var buf = new Uint8Array(await resp.arrayBuffer());
+    var salt = buf.slice(0, 16);
+    var iv = buf.slice(16, 28);
+    var ct = buf.slice(28);
+    var key = await deriveKey(pass, salt);
+    var ptBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, ct);
+    var blob = new Blob([ptBuf], { type: 'application/pdf' });
+    var url = URL.createObjectURL(blob);
+    var name = pdfName(src);
+    var actions = el.querySelector('.sv-file-actions');
+    actions.innerHTML = '';
+    var view = document.createElement('a');
+    view.href = url; view.target = '_blank'; view.rel = 'noopener';
+    view.className = 'sv-link'; view.textContent = 'View';
+    var dl = document.createElement('a');
+    dl.href = url; dl.download = name;
+    dl.className = 'sv-link'; dl.textContent = 'Download';
+    actions.appendChild(view); actions.appendChild(dl);
+  }
+
+  async function unlock() {
+    clearErr();
+    var pass = input.value;
+    if (!pass) { showErr('Enter the passphrase.'); return; }
+    btn.disabled = true; btn.textContent = 'Decrypting…';
+    try {
+      // Decrypt the first file to validate the passphrase before revealing.
+      await decryptOne(fileEls[0], pass);
+      for (var i = 1; i < fileEls.length; i++) await decryptOne(fileEls[i], pass);
+      gate.style.display = 'none';
+      filesWrap.style.display = 'block';
+    } catch (e) {
+      showErr('Incorrect passphrase, or the file could not be decrypted.');
+      btn.disabled = false; btn.textContent = 'Decrypt';
+    }
+  }
+
+  btn.addEventListener('click', unlock);
+  input.addEventListener('keydown', function (e) { if (e.key === 'Enter') unlock(); });
+})();
+</script>
