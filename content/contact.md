@@ -9,7 +9,7 @@ ShowPostNavLinks: false
 hideMeta: true
 ---
 
-A question, an idea, or just a hello? I’d love to hear from you.
+A question, an idea, or just a hello?
 
 {{< contact-form >}}
 
