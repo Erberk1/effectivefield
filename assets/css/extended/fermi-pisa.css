@@ -129,3 +129,16 @@
   line-height: 1.65;
   color: var(--ink-soft);
 }
+
+/* Keep the two introductory photographs together in their original proportions. */
+.post-content .fermi-gallery--scuola-intro {
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: clamp(0.65rem, 2vw, 1.4rem);
+  max-width: 640px;
+  margin-inline: auto;
+}
+
+.post-content .fermi-gallery--scuola-intro .fermi-photo img {
+  height: auto;
+  max-height: none;
+}

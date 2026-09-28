@@ -17,6 +17,11 @@ And, as the aforementioned paradox illustrates, Fermi is known for his predictiv
 
 My fascination with Fermi grew when I read The Pope of Physics as a high schooler and learned about his intellectual upbringing in Pisa at the Scuola Normale Superiore, to be specific.
 
+{{< fermi-gallery class="fermi-gallery--scuola-intro" >}}
+{{< fermi-photo src="/images/posts/fermis-pisa/scuola-visit-historic-preview.webp" width="850" height="665" full="/images/posts/fermis-pisa/scuola-visit-historic.webp" alt="Three visitors standing at the entrance to the Scuola Normale Superiore" caption="Spaniards conquering Normale" >}}
+{{< fermi-photo src="/images/posts/fermis-pisa/scuola-entrance-flags-preview.webp" width="750" height="1000" full="/images/posts/fermis-pisa/scuola-entrance-flags.webp" alt="The Scuola Normale Superiore entrance, balcony and flags viewed from below" caption="The entrance." >}}
+{{< /fermi-gallery >}}
+
 Pisa can be considered the birthplace of modern physics, thanks to Galileo. He was one of the pioneering European scientists to combine rigorous mathematical underpinnings with observational methods, paving the way for all theoreticians today. Not only did he conduct experiments with falling objects, [reportedly from the famous Leaning Tower of Pisa](https://brunelleschi.imss.fi.it/itineraries/pdf/GalileoBiography.pdf#page=22), and formulate the principle of relativity, but he also made discoveries, as in the case of Jupiter's moons.
 
 {{< fermi-photo src="/images/posts/fermis-pisa/leaning-tower-preview.webp" width="750" height="1000" full="/images/posts/fermis-pisa/leaning-tower.webp" alt="The Leaning Tower of Pisa beside the cathedral, with sunlight coming through the tower’s lower arches" caption="The Leaning Tower of Pisa and the cathedral." >}}
