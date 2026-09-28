@@ -9,7 +9,7 @@ summary: "A visit to the Scuola Normale Superiore, Fermi’s handwritten entranc
 
 {{< fermi-photo src="/images/posts/fermis-pisa/fermi-portrait-preview.webp" width="750" height="1000" full="/images/posts/fermis-pisa/fermi-portrait.webp" alt="Photograph of a mounted black-and-white portrait of Enrico Fermi" caption="Enrico Fermi. A portrait photographed during my visit to the Scuola Normale Superiore." class="fermi-photo--hero" loading="eager" >}}
 
-Enrico Fermi is the best Italian physicist of the 20th century and is widely known for his work in nuclear physics. He began bombarding nuclei with neutrons in Rome and later settled at the University of Chicago after the war, where he worked until his death in 1954. Besides being a Quantum pioneer, he was one of the leading physicists in the Manhattan Project. And he is immortalized in the minds of young physicists through the name of Fermions- subatomic particles with half integer spin.
+Enrico Fermi is the best Italian physicist of the 20th century and is widely known for his work in nuclear physics. He began bombarding nuclei with neutrons in Rome and later settled at the University of Chicago after the Second World War, where he worked until his death in 1954. Besides being a Quantum pioneer, he was one of the leading physicists in the Manhattan Project. And he is immortalized in the minds of young physicists through the name of Fermions- subatomic particles with half integer spin.
 
 I first learned about Fermi as a 13-year-old from the book 50 Best Ideas in Physics. One of these was the Fermi paradox, the argument that evidence of extraterrestrial intelligence should be apparent because the universe is so vast and old. Obviously, Fermi knew about relativity, so the paradox can't simply be resolved by the possibility of aliens outside our light cone, since even sub-relativistic travel could provide more than enough time to colonize our own galaxy.
 
@@ -81,7 +81,7 @@ u(x) ={}& C_1 \cosh(\beta x) + C_2 \sinh(\beta x) \\
 $$
 </div>
 
-We apply the boundary conditions for the rod fixed at one end and free at the other. At the clamped base (<span class="fermi-inline-math">$x = 0$</span>), both the displacement and slope must be zero:
+We apply the boundary conditions for the rod fixed at one end. At the clamped base (<span class="fermi-inline-math">$x = 0$</span>), both the displacement and slope must be zero:
 
 <div class="fermi-equation">
 $$
