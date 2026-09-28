@@ -1,0 +1,12 @@
+{{- $src := .Get "src" -}}
+{{- $full := .Get "full" | default $src -}}
+{{- $caption := .Get "caption" -}}
+{{- $alt := .Get "alt" | default ($caption | plainify) -}}
+<figure class="fermi-photo{{ with .Get "class" }} {{ . }}{{ end }}{{ with .Get "orientation" }} fermi-photo--{{ . }}{{ end }}">
+  <a class="fermi-photo__link" href="{{ $full | relURL }}" aria-label="View full-size image: {{ $alt }}">
+    <img src="{{ $src | relURL }}" alt="{{ $alt }}" loading="{{ .Get "loading" | default "lazy" }}" decoding="async"{{ with .Get "width" }} width="{{ . }}"{{ end }}{{ with .Get "height" }} height="{{ . }}"{{ end }}>
+  </a>
+  {{- with $caption }}
+  <figcaption>{{ . | markdownify }}</figcaption>
+  {{- end }}
+</figure>
