@@ -123,6 +123,18 @@ u'''(L) ={}& \beta^3 [ C_1 (\sinh \beta L - \sin \beta L) \\
 $$
 </div>
 
+<div class="fermi-equation">
+$$
+\begin{pmatrix}
+\cosh(\beta L) + \cos(\beta L) & \sinh(\beta L) + \sin(\beta L) \\
+\sinh(\beta L) - \sin(\beta L) & \cosh(\beta L) + \cos(\beta L)
+\end{pmatrix}
+\begin{pmatrix} C_1 \\ C_2 \end{pmatrix}
+=
+\begin{pmatrix} 0 \\ 0 \end{pmatrix}.
+$$
+</div>
+
 For the rod to vibrate, <span class="fermi-inline-math">$C_1$</span> and <span class="fermi-inline-math">$C_2$</span> cannot both be zero. Therefore, the determinant of their coefficients in this linear system must equal zero:
 
 <div class="fermi-equation">
