@@ -81,7 +81,7 @@ u(x) ={}& C_1 \cosh(\beta x) + C_2 \sinh(\beta x) \\
 $$
 </div>
 
-We apply the boundary conditions for the cantilevered rod. At the clamped base (<span class="fermi-inline-math">$x = 0$</span>), both the displacement and slope must be zero:
+We apply the boundary conditions for the rod fixed at one end and free at the other. At the clamped base (<span class="fermi-inline-math">$x = 0$</span>), both the displacement and slope must be zero:
 
 <div class="fermi-equation">
 $$
@@ -184,7 +184,7 @@ I am not aware of all the exam setup details, including what references Fermi ha
 
 {{< fermi-gallery >}}
 {{< fermi-photo src="/images/posts/fermis-pisa/calculations-preview.webp" width="744" height="1000" full="/images/posts/fermis-pisa/calculations.webp" alt="A manuscript page of trigonometric expressions and numerical calculations" caption="A page of handwritten calculations among the examination papers." class="fermi-photo--manuscript" >}}
-{{< fermi-photo src="/images/posts/fermis-pisa/university-document-preview.webp" width="678" height="1000" full="/images/posts/fermis-pisa/university-document.webp" alt="Handwritten document headed R. Università degli Studi di Roma" caption="A document on the headed paper of the Royal University of Rome, displayed with the examination papers." class="fermi-photo--manuscript" >}}
+{{< fermi-photo src="/images/posts/fermis-pisa/university-document-preview.webp" width="678" height="1000" full="/images/posts/fermis-pisa/university-document.webp" alt="Handwritten document headed R. Università degli Studi di Roma" caption="Fermi took the exam near his home in Rome, just after the First World War." class="fermi-photo--manuscript" >}}
 {{< /fermi-gallery >}}
 
 Returning to the Scuola Normale, before Napoleon's conquest, the building was essentially a palace for noble knights training to defend against external forces, primarily the Ottomans. Today, the former school library, used as a conference room, houses historical documents from the Salviati family archive.
@@ -196,7 +196,7 @@ Returning to the Scuola Normale, before Napoleon's conquest, the building was es
 
 As you can see here, the beautiful glass roof is surrounded by coats of arms of the families whose descendants trained in this very palace. And when you follow the stairs right up from there, you arrive at Fermi's room, which overlooks the square where the Scuola sits.
 
-{{< fermi-photo src="/images/posts/fermis-pisa/fermi-room-preview.webp" width="750" height="1000" full="/images/posts/fermis-pisa/fermi-room.webp" alt="A corridor and doorway inside the Palazzo della Carovana" caption="A corridor inside the Palazzo della Carovana." >}}
+{{< fermi-photo src="/images/posts/fermis-pisa/fermi-room-preview.webp" width="750" height="1000" full="/images/posts/fermis-pisa/fermi-room.webp" alt="The doorway to Fermi's room inside the Palazzo della Carovana" caption="Fermi's room." >}}
 
 Although physics, the crown of positive sciences, is purely objective and independent of where it is practiced, a rich intellectual spirit often inspires one to think more deeply about nature and the laws that govern it. I can see that this is certainly the case for the SNS and Pisa in general, making it entirely unsurprising that this environment fostered such greats as Galileo and Fermi.
 
