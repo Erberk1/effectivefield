@@ -1,0 +1,16 @@
+<section class="field-discovery" aria-label="Search and order posts" data-index="{{ "index.json" | relURL }}" data-search-page="{{ eq .Layout "discovery" }}">
+  <div class="discovery-heading"><span class="discovery-orbit" aria-hidden="true"></span><h2>Explore the field</h2></div>
+  <form class="discovery-form" role="search" action="{{ "search/" | relURL }}">
+    <div class="discovery-search">
+      <label class="sr-only" for="field-query">Search the site</label>
+      <svg class="discovery-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 6 6"/></svg>
+      <input id="field-query" name="q" type="search" placeholder="Search words or ideas…" autocomplete="off" spellcheck="false" maxlength="150" aria-controls="discovery-results" aria-describedby="discovery-status">
+      <button class="discovery-clear" type="button" hidden>Clear</button>
+    </div>
+    <label class="discovery-order" for="field-order"><span>Order</span><select id="field-order" name="order" aria-controls="discovery-results"><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></label>
+  </form>
+  <p id="discovery-status" class="discovery-status" role="status" aria-live="polite">Search posts, presentations and pages.</p>
+</section>
+<div id="discovery-results" hidden></div>
+{{ $script := resources.Get "js/discovery.js" | minify | fingerprint }}
+<script defer src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}"></script>

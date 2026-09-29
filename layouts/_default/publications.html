@@ -62,7 +62,7 @@
           links += '<a class="pub-link" href="https://doi.org/' + doi + '" target="_blank">DOI</a>';
         }
 
-        html += '<li class="pub-item">';
+        html += '<li class="pub-item" id="publication-' + cn + '">';
         html += '<div class="pub-title">' + title + (year ? ' (' + year + ')' : '') + '</div>';
         html += '<div class="pub-authors">' + authors + '</div>';
         if (journal) {
@@ -75,6 +75,10 @@
       });
       html += '</ul>';
       container.innerHTML = html;
+      if (/^#publication-\d+$/.test(window.location.hash)) {
+        var selected = document.getElementById(window.location.hash.slice(1));
+        if (selected) selected.scrollIntoView({ block: 'start' });
+      }
     })
     .catch(function(err) {
       container.innerHTML = '<p class="pub-empty">Could not load publications. <a href="https://inspirehep.net/authors/2960946" target="_blank" style="color:var(--link)">View on INSPIRE-HEP</a></p>';

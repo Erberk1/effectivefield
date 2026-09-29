@@ -91,3 +91,12 @@ buildFuture = true
     style = "github-dark"
     lineNos = false
     codeFences = true
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
+[[menu.main]]
+  identifier = "search"
+  name = "Search"
+  url = "/search/"
+  weight = 8

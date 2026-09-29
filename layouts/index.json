@@ -1,0 +1,21 @@
+{{- $index := slice -}}
+{{- $extra := hugo.Data.search_extra -}}
+{{- range site.RegularPages -}}
+  {{- if and (not .Draft) (not .Params.searchHidden) (not .Params.robotsNoIndex) -}}
+    {{- $text := .Content | replaceRE `(?is)<script\b[^>]*>.*?</script\s*>` " " | replaceRE `(?is)<style\b[^>]*>.*?</style\s*>` " " | plainify | htmlUnescape | replaceRE `\s+` " " -}}
+    {{- $url := .RelPermalink -}}
+    {{- $category := cond (eq .Section "posts") "Post" "Page" -}}
+    {{- range $extra.supplementalText -}}
+      {{- if eq .url $url -}}{{- $text = printf "%s %s" $text .content -}}{{- end -}}
+    {{- end -}}
+    {{- range $extra.documents -}}
+      {{- if eq .page $url -}}{{- $category = "Presentation" -}}{{- end -}}
+    {{- end -}}
+    {{- $summary := .Summary | plainify | htmlUnescape | replaceRE `\s+` " " -}}
+    {{- $index = $index | append (dict "category" $category "title" .Title "content" $text "summary" $summary "url" .RelPermalink "section" .Section "tags" (.Params.tags | default slice) "date" (.Date.Format "2006-01-02") "dateLabel" (.Date.Format "January 2, 2006") "timestamp" .Date.Unix "readingTime" .ReadingTime) -}}
+  {{- end -}}
+{{- end -}}
+{{- range $extra.entries -}}
+  {{- $index = $index | append . -}}
+{{- end -}}
+{{- $index | jsonify -}}

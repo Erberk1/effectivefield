@@ -1,0 +1,124 @@
+/* The ket and its name form one theme control. */
+.header .logo-switches {
+  position: absolute;
+  top: 26px;
+  right: 40px;
+  height: 44px;
+  min-height: 0;
+  padding: 0;
+  line-height: 1;
+}
+.header #theme-toggle {
+  min-height: 44px;
+  padding: 0 4px !important;
+  color: var(--ink-soft);
+  opacity: 0.85;
+  line-height: 1;
+  border-radius: 3px;
+}
+
+.header #theme-toggle::after {
+  content: none;
+}
+
+.header #theme-toggle:hover {
+  color: var(--ink);
+  opacity: 1;
+}
+
+.header #theme-toggle:focus-visible {
+  outline: 1px solid var(--link) !important;
+  outline-offset: 5px;
+}
+
+.theme-state {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 400;
+}
+
+.theme-ket {
+  font-size: 1.8rem;
+  letter-spacing: -0.08em;
+}
+
+.theme-name {
+  font-size: 1.4rem;
+  font-style: italic;
+  letter-spacing: 0.015em;
+}
+
+.theme-state-dark,
+[data-theme="dark"] .theme-state-light {
+  display: none;
+}
+
+[data-theme="dark"] .theme-state-dark {
+  display: inline-flex;
+}
+
+/* Reserve room for the wider control while keeping the existing navigation. */
+nav.header-nav {
+  padding-right: 172px !important;
+}
+
+@media (max-width: 1000px) {
+  nav.header-nav {
+    padding-right: 40px !important;
+  }
+
+  .header .logo {
+    width: 100%;
+    padding-right: 120px;
+  }
+
+  .header #menu {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    flex-wrap: wrap;
+    overflow: visible;
+    white-space: normal;
+    line-height: 1.4;
+    row-gap: 2px;
+  }
+}
+
+@media (max-width: 640px) {
+  nav.header-nav {
+    padding: 14px 18px !important;
+    gap: 4px;
+  }
+
+  .header .logo {
+    padding-right: 104px;
+  }
+
+  .header .logo > a {
+    font-size: 1.2rem;
+    gap: 8px;
+  }
+
+  .header .logo img {
+    height: 36px;
+  }
+
+  .header .logo-switches {
+    top: 22px;
+    right: 18px;
+  }
+
+  .theme-ket {
+    font-size: 1.5rem;
+  }
+
+  .theme-name {
+    font-size: 1.25rem;
+  }
+
+  .theme-state {
+    gap: 0.3rem;
+  }
+}
