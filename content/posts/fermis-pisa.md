@@ -215,7 +215,7 @@ As you can see here, the beautiful glass roof is surrounded by coats of arms of 
 
 {{< fermi-photo src="/images/posts/fermis-pisa/fermi-room-preview.webp" width="750" height="1000" full="/images/posts/fermis-pisa/fermi-room.webp" alt="The doorway to Fermi's room inside the Palazzo della Carovana" caption="Fermi's room." >}}
 
-Although physics, the crown of positive sciences, is purely objective and independent of where it is practiced, a rich intellectual spirit often inspires one to think more deeply about nature and the laws that govern it. I can see that this is certainly the case for the SNS and Pisa in general, making it entirely unsurprising that this environment fostered such greats as Galileo and Fermi.
+Although physics, the crown of positive sciences, is purely objective and independent of where it is practiced, a rich intellectual spirit often inspires one to think more deeply about nature and the laws that govern it. I can see this is certainly the case for the SNS and Pisa in general, making it entirely unsurprising that this environment fostered such greats as Galileo and Fermi.
 
 {{< fermi-photo src="/images/posts/fermis-pisa/pisa-mural-preview.webp" width="1000" height="750" full="/images/posts/fermis-pisa/pisa-mural.webp" alt="A Pisa street mural showing Galileo looking through a telescope shaped like the Leaning Tower" caption="Galileo and a telescope shaped like the Leaning Tower, on a wall in Pisa." >}}
 
